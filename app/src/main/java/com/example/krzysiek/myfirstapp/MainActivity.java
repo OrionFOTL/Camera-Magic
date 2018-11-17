@@ -1,8 +1,10 @@
 package com.example.krzysiek.myfirstapp;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -15,8 +17,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        boolean kamera = checkCameraHardware(this);
-        Log.i("msg",String.valueOf(kamera));
+        checkCameraHardware(this); //sprawdz czy jest kamera
         setContentView(R.layout.activity_main);
     }
     /** Sprawdzenie czy urzadzenie ma kamere **/
@@ -25,7 +26,20 @@ public class MainActivity extends AppCompatActivity {
             // this device has a camera
             return true;
         } else {
-            // no camera on this device
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setTitle("Brak kamery");
+            builder.setMessage("Twój telefon nie ma aparatu");
+            builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    finish();
+                    System.exit(0);
+                }
+            });
+            builder.setCancelable(false);
+            AlertDialog dialog = builder.create();
+            dialog.setCanceledOnTouchOutside(false);
+            dialog.show();
             return false;
         }
     }
@@ -37,7 +51,6 @@ public class MainActivity extends AppCompatActivity {
         String message = editText.getText().toString();
         intent.putExtra(EXTRA_MESSAGE, message);
         startActivity(intent);
-        editText.setText(String.valueOf(checkCameraHardware(this)));
 
     }
 }

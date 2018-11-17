@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -15,7 +16,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         boolean kamera = checkCameraHardware(this);
-        
+        Log.i("msg",String.valueOf(kamera));
         setContentView(R.layout.activity_main);
     }
     /** Sprawdzenie czy urzadzenie ma kamere **/
@@ -36,6 +37,7 @@ public class MainActivity extends AppCompatActivity {
         String message = editText.getText().toString();
         intent.putExtra(EXTRA_MESSAGE, message);
         startActivity(intent);
+        editText.setText(String.valueOf(checkCameraHardware(this)));
 
     }
 }

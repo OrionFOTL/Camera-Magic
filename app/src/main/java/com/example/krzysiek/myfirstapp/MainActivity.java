@@ -11,11 +11,9 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.FrameLayout;
-import android.widget.TextView;
 
 public class MainActivity extends AppCompatActivity {
     public static final String EXTRA_MESSAGE = "com.example.myfirstapp.MESSAGE";
@@ -39,12 +37,13 @@ public class MainActivity extends AppCompatActivity {
 
     public void initCamera(){
         checkCameraHardware(this); //sprawdz czy jest kamera
-        getCameraInstance();
+
         //create an instance of Camera
         mCamera = getCameraInstance();
+
         //Create our Preview View and set it as content of our activity
         mPreview = new CameraPreview(this,mCamera);
-        FrameLayout preview = (FrameLayout) findViewById(R.id.cameraFrameLayout);
+        FrameLayout preview = (FrameLayout) findViewById(R.id.camera_preview);
         preview.addView(mPreview);
 
     }
@@ -108,7 +107,8 @@ public class MainActivity extends AppCompatActivity {
         dialog.show();
     }
 
-    /** Called when the user taps the Send button */
+    /* Called when the user taps the Send button */
+    /*
     public void sendMessage(View view) {
         Intent intent = new Intent(this, DisplayMessageActivity.class);
         EditText editText = (EditText) findViewById(R.id.editText);
@@ -116,5 +116,6 @@ public class MainActivity extends AppCompatActivity {
         intent.putExtra(EXTRA_MESSAGE, message);
         startActivity(intent);
     }
+     */
 }
 

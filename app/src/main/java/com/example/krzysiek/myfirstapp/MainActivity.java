@@ -30,22 +30,28 @@ public class MainActivity extends AppCompatActivity {
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA},PERMISSIONS_REQUEST_CAMERA); //poproś o pozwolenie
         }
         else{ //jeśli zgoda już była udzielona
-            checkCameraHardware(this); //sprawdz czy jest kamera
-            getCameraInstance();
+            initCamera();
         }
     }
 
+    public void initCamera(){
+        checkCameraHardware(this); //sprawdz czy jest kamera
+        getCameraInstance();
+
+    }
+
     public Camera getCameraInstance() {
-        Camera c = null;
+        Camera cam = null;
         try {
-            c = Camera.open();
+            cam = Camera.open();
+            cam.getParameters();
+
         }
         catch (Exception e){
             displayErrorModal("Błąd kamery",e.toString());
         }
-        return c;
+        return cam;
     }
-
     private boolean checkCameraHardware(Context context) {
         if (context.getPackageManager().hasSystemFeature(PackageManager.FEATURE_CAMERA)){
             // this device has a camera
@@ -61,8 +67,7 @@ public class MainActivity extends AppCompatActivity {
         switch(requestCode){
             case PERMISSIONS_REQUEST_CAMERA: {
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED){
-                    checkCameraHardware(this); //sprawdz czy jest kamera
-                    getCameraInstance();
+                    initCamera();
                     return;
                 }
                 else displayErrorModal("Błąd uprawnień", "Nie pozwoliłeś na dostęp do kamery");
@@ -104,3 +109,4 @@ public class MainActivity extends AppCompatActivity {
         startActivity(intent);
     }
 }
+

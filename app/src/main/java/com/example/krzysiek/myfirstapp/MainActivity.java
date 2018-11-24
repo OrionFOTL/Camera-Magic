@@ -1,166 +1,117 @@
 package com.example.krzysiek.myfirstapp;
 
-import android.Manifest;
-import android.content.Context;
-import android.content.DialogInterface;
-import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.hardware.Camera;
-import android.net.Uri;
-import android.os.Environment;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
-import android.support.v7.app.AlertDialog;
-import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
-import android.util.Log;
-import android.view.View;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.FrameLayout;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Locale;
 
-import static android.provider.MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Matrix;
+import android.hardware.Camera;
+import android.hardware.Camera.PictureCallback;
+import android.media.MediaScannerConnection;
+import android.media.MediaScannerConnection.MediaScannerConnectionClient;
+import android.net.Uri;
+import android.os.Bundle;
+import android.os.Environment;
+import android.provider.MediaStore.Images;
+import android.provider.MediaStore.Images.Media;
+import android.app.Activity;
+import android.content.ContentValues;
+import android.content.Context;
+import android.content.Intent;
+import android.content.res.Configuration;
+import android.util.Log;
+import android.view.Menu;
+import android.view.ViewGroup.LayoutParams;
+import android.view.KeyEvent;
+import android.view.Window;
+import android.view.WindowManager;
+import android.widget.FrameLayout;
+import android.widget.SeekBar;
+import android.widget.SeekBar.OnSeekBarChangeListener;
+import android.widget.Toast;
 
-public class MainActivity extends AppCompatActivity {
-    public static final String EXTRA_MESSAGE = "com.example.myfirstapp.MESSAGE";
-    public static final int PERMISSIONS_REQUEST_CAMERA = 1;
-    public static final int PERMISSIONS_REQ_WRITESTORAGE = 5;
-    private Camera mCamera;
+public class MainActivity extends Activity implements MediaScannerConnectionClient {
+
+    public Camera mCamera;
     private CameraPreview mPreview;
-    private Camera.PictureCallback mPicture = new Camera.PictureCallback() {
+
+    public static final int MEDIA_TYPE_IMAGE = 1;
+    public static final int MEDIA_TYPE_VIDEO = 2;
+
+
+    private static String appName = "MySelfie Pictures";
+    private MediaScannerConnection scanner;
+    private Context context = this;
+    private PictureCallback mPicture = new PictureCallback() {
+
         @Override
         public void onPictureTaken(byte[] data, Camera camera) {
 
+            String TAG = "onPictureTaken";
+
             File pictureFile = getOutputMediaFile(MEDIA_TYPE_IMAGE);
+            Bitmap pictureTaken = BitmapFactory.decodeByteArray(data, 0,data.length);
+
+            //rotation
+            Matrix matrix = new Matrix();
+            matrix.postRotate(CameraPreview.mDisplayOrientation); // clockwise by 90 degrees
+
+            // create a new bitmap from the original using the matrix to transform the result
+            pictureTaken = Bitmap.createBitmap(pictureTaken , 0, 0, pictureTaken.getWidth(), pictureTaken.getHeight(), matrix, true);
+
+            Uri contentUri = Uri.fromFile(pictureFile);
+
+            OutputStream outputStream;
+            try {
+                outputStream = getContentResolver().openOutputStream(contentUri);
+                boolean compressed = pictureTaken.compress(	Bitmap.CompressFormat.JPEG, 80, outputStream);
+                Log.e(TAG, "picture successfully compressed at:" + pictureFile
+                        + compressed);
+                outputStream.close();
+            } catch (FileNotFoundException e) {
+
+                e.printStackTrace();
+            } catch (IOException e) {
+
+                e.printStackTrace();
+            }
+
             if (pictureFile == null){
-                displayModal("Błąd przy tworzeniu pliku","Błąd zapisu zdjęcia, sprawdź uprawnienia dostępu do pamięci");
+                Log.d(TAG, "Error creating media file, check storage permissions");
                 return;
             }
 
-            try {
-                FileOutputStream fos = new FileOutputStream(pictureFile);
-                fos.write(data);
-                fos.close();
-            } catch (FileNotFoundException e) {
-                displayModal("Nie znaleziono pliku",e.getMessage());
-            } catch (IOException e) {
-                displayModal("Błąd dsotępu do pliku",e.getMessage());
-            }
+            /*sends an intent so the media scanner adds the file to the library */
+            Intent mediaScanIntent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
+
+            mediaScanIntent.setData(contentUri);
+            context.sendBroadcast(mediaScanIntent);
+
+
+            Log.i(TAG, "Picture taken! " + pictureFile.getPath());
+
+
+            mCamera.startPreview();
+
         }
     };
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
 
-        //jeśli nie ma pozwolenia na kamerę
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA)
-                != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA},PERMISSIONS_REQUEST_CAMERA); //poproś o pozwolenie
-        }
-        else{ //jeśli zgoda już była udzielona
-            initCamera();
-        }
-        Button captureButton = (Button) findViewById(R.id.captureButton);
-        captureButton.setOnClickListener(
-                new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        // get an image from the camera
-                        if (ContextCompat.checkSelfPermission(MainActivity.this,Manifest.permission.WRITE_EXTERNAL_STORAGE)
-                                != PackageManager.PERMISSION_GRANTED){
-                            ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},PERMISSIONS_REQ_WRITESTORAGE);
-                        }
-                        else {
-                            mCamera.takePicture(null, null, mPicture);
-                        }
 
-                    }
-                }
-        );
-    }
 
-    public void initCamera(){
-        checkCameraHardware(this); //sprawdz czy jest kamera
 
-        //create an instance of Camera
-        mCamera = getCameraInstance();
 
-        //Create our Preview View and set it as content of our activity
-        mPreview = new CameraPreview(this,mCamera);
-        FrameLayout preview = (FrameLayout) findViewById(R.id.camera_preview);
-        preview.addView(mPreview);
-
-    }
-    public Camera getCameraInstance() {
-        Camera cam = null;
-        try {
-            cam = Camera.open();
-
-        }
-        catch (Exception e){
-            displayErrorModal("Błąd kamery",e.toString());
-        }
-        return cam;
-    }
-    private boolean checkCameraHardware(Context context) {
-        if (context.getPackageManager().hasSystemFeature(PackageManager.FEATURE_CAMERA)){
-            // this device has a camera
-            return true;
-        } else {
-            displayErrorModal("Brak kamery","Twój telefon nie ma aparatu");
-            return false;
-        }
-    } //true jeśli urządzenie ma kamerę
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults){
-        if (requestCode == PERMISSIONS_REQUEST_CAMERA) {
-            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                initCamera();
-                return;
-            } else displayErrorModal("Błąd uprawnień", "Nie pozwoliłeś na dostęp do kamery");
-        }
-        if (requestCode == PERMISSIONS_REQ_WRITESTORAGE) {
-            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                mCamera.takePicture(null, null, mPicture);
-                return;
-            }
-            else displayErrorModal("Błąd uprawnień", "Nie pozwoliłeś na dostęp do pamięci");
-        }
-        //inne case dla requestCode'ów innych przyznanych uprawnień
-    }
-    public void displayErrorModal(String title, String message){
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle(title);
-        builder.setMessage(message);
-        builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                finish();
-                System.exit(0);
-            }
-        });
-        builder.setCancelable(false);
-        AlertDialog dialog = builder.create();
-        dialog.setCanceledOnTouchOutside(false);
-        dialog.show();
-    }
-    public void displayModal(String title, String message){
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle(title);
-        builder.setMessage(message);
-        builder.setPositiveButton("OK", null);
-        AlertDialog dialog = builder.create();
-        dialog.show();
+    /** Create a file Uri for saving an image or video */
+    private static Uri getOutputMediaFileUri(int type){
+        return Uri.fromFile(getOutputMediaFile(type));
     }
 
     /** Create a File for saving an image or video */
@@ -168,25 +119,32 @@ public class MainActivity extends AppCompatActivity {
         // To be safe, you should check that the SDCard is mounted
         // using Environment.getExternalStorageState() before doing this.
 
-        File mediaStorageDir = new File(Environment.getExternalStoragePublicDirectory(
-                Environment.DIRECTORY_PICTURES), "MyCameraApp");
+        File mediaStorageDir = new File( Environment.getExternalStoragePublicDirectory(
+                Environment.DIRECTORY_PICTURES), appName);
         // This location works best if you want the created images to be shared
         // between applications and persist after your app has been uninstalled.
 
         // Create the storage directory if it does not exist
         if (! mediaStorageDir.exists()){
             if (! mediaStorageDir.mkdirs()){
-                Log.d("MyCameraApp", "failed to create directory");
+                Log.d(appName, "failed to create directory");
                 return null;
             }
         }
 
         // Create a media file name
-        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss",Locale.getDefault()).format(new Date());
         File mediaFile;
         if (type == MEDIA_TYPE_IMAGE){
-            mediaFile = new File(mediaStorageDir.getPath() + File.separator +
-                    "IMG_"+ timeStamp + ".jpg");
+            String filename = "IMG_"+ timeStamp;
+
+            try {
+                mediaFile = File.createTempFile( filename, ".jpg",mediaStorageDir);
+            } catch (IOException e) {
+                mediaFile=null;
+                Log.d(appName, "failed to create the temp file");
+            }
+
         } else {
             return null;
         }
@@ -194,16 +152,169 @@ public class MainActivity extends AppCompatActivity {
         return mediaFile;
     }
 
-
-    /* Called when the user taps the Send button */
-    /*
-    public void sendMessage(View view) {
-        Intent intent = new Intent(this, DisplayMessageActivity.class);
-        EditText editText = (EditText) findViewById(R.id.editText);
-        String message = editText.getText().toString();
-        intent.putExtra(EXTRA_MESSAGE, message);
-        startActivity(intent);
+    /* important to be on key down because this happens before. and thus before the volume keys are computed. */
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if (keyCode == KeyEvent.KEYCODE_VOLUME_UP || keyCode == KeyEvent.KEYCODE_VOLUME_DOWN) {
+            mCamera.stopFaceDetection();
+            mCamera.takePicture(null, null, mPicture);
+            Log.e("Main activity", "KEYCODE_VOLUME");
+            return true;
+        }
+        else
+            return super.onKeyDown(keyCode, event);
     }
-     */
-}
 
+
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        // Hide the window title.
+        //  requestWindowFeature(Window.FEATURE_NO_TITLE);
+        // getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
+        //    WindowManager.LayoutParams.FLAG_FULLSCREEN);
+
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+
+        // Create a RelativeLayout container that will hold a SurfaceView,
+        // and set it as the content of our activity.
+        setContentView(R.layout.activity_main);
+
+        scanner = new MediaScannerConnection(getApplicationContext(),this);
+
+
+        openBackCamera();
+        mPreview = new CameraPreview(this, mCamera);
+        FrameLayout preview = (FrameLayout) findViewById(R.id.camera_preview);
+        preview.addView(mPreview);
+
+        setFacesBar();
+    }
+
+    private void setFacesBar()
+    {
+        SeekBar sb = (SeekBar)findViewById(R.id.seekbar_faces);
+
+        sb.setOnSeekBarChangeListener(new OnSeekBarChangeListener() {
+
+            Toast toast = null;
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+                if(toast!=null){
+                    toast.cancel();
+                }
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+                toast = Toast.makeText(getApplicationContext(), " "+seekBar.getProgress(), Toast.LENGTH_SHORT);
+                toast.show();
+            }
+
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress,
+                                          boolean fromUser) {
+                if(toast!=null){
+                    toast.cancel();
+                }
+                toast = Toast.makeText(getApplicationContext(), " "+progress, Toast.LENGTH_SHORT);
+                toast.show();
+                mPreview.minFacesToDetect = progress;
+
+            }
+        });
+
+    }
+
+
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        return true;
+    }
+
+
+    private boolean safeCameraOpen(int id) {
+        boolean qOpened = false;
+
+        try {
+            releaseCameraAndPreview();
+            mCamera = Camera.open(id);
+            CameraPreview.setCameraDisplayOrientation((Activity) this, id, mCamera);
+            mPreview.setCameraID(id);
+            qOpened = (mCamera != null);
+        } catch (Exception e) {
+            Log.e(getString(R.string.app_name), "failed to open Camera");
+            e.printStackTrace();
+        }
+
+        return qOpened;
+    }
+
+    private void releaseCameraAndPreview() {
+        mPreview.setCamera(null);
+        if (mCamera != null) {
+            mCamera.release();
+            mCamera = null;
+        }
+    }
+
+    @Override
+    protected void onResume() {
+        // TODO Auto-generated method stub
+        super.onResume();
+        //mPreview = new CameraPreview(this.getApplicationContext());
+
+        openBackCamera();
+
+        mPreview.setCamera(mCamera);
+    }
+
+    private void openBackCamera()
+    {
+        Camera.CameraInfo cameraInfo = new Camera.CameraInfo();
+        int nCameras = Camera.getNumberOfCameras();
+        //Toast.makeText(this.getApplicationContext(), "Number of cameras: "+nCameras, Toast.LENGTH_SHORT).show();
+
+        for(int id=0; id<nCameras; id++)
+        {
+            Camera.getCameraInfo(id, cameraInfo);
+            if (cameraInfo.facing == Camera.CameraInfo.CAMERA_FACING_BACK)
+                safeCameraOpen(id);
+        }
+
+    }
+    @Override
+    protected void onPause() {
+        super.onPause();
+
+        // Because the Camera object is a shared resource, it's very
+        // important to release it when the activity is paused.
+        if (mCamera != null) {
+            mPreview.setCamera(null);
+            mCamera.release();
+            mCamera = null;
+        }
+    }
+
+    @Override
+    public void onMediaScannerConnected() {
+        File mediaStorageDir = new File(Environment.getExternalStoragePublicDirectory(
+                Environment.DIRECTORY_PICTURES), appName);
+        scanner.scanFile(mediaStorageDir.getAbsolutePath(), null);
+        Log.i("Scanner", "Path scanned " + mediaStorageDir.getAbsolutePath());
+
+    }
+
+    @Override
+    public void onScanCompleted(String path, Uri uri) {
+        scanner.disconnect();
+
+    }
+
+
+
+}

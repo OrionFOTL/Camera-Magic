@@ -1,11 +1,17 @@
 package com.example.krzysiek.myfirstapp;
 
 import android.Manifest;
+import android.app.Activity;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Matrix;
 import android.hardware.Camera;
+import android.icu.util.Output;
+import android.media.MediaScannerConnection;
 import android.net.Uri;
 import android.os.Environment;
 import android.support.v4.app.ActivityCompat;
@@ -23,6 +29,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -32,6 +39,7 @@ public class MainActivity extends AppCompatActivity {
     public static final String EXTRA_MESSAGE = "com.example.myfirstapp.MESSAGE";
     public static final int PERMISSIONS_REQUEST_CAMERA = 1;
     public static final int PERMISSIONS_REQ_WRITESTORAGE = 5;
+    private MediaScannerConnection scanner;
     private Camera mCamera;
     private CameraPreview mPreview;
     private Camera.PictureCallback mPicture = new Camera.PictureCallback() {
@@ -39,11 +47,42 @@ public class MainActivity extends AppCompatActivity {
         public void onPictureTaken(byte[] data, Camera camera) {
 
             File pictureFile = getOutputMediaFile(MEDIA_TYPE_IMAGE);
+            Bitmap pictureTaken = BitmapFactory.decodeByteArray(data,0,data.length);
+
+            //obroc zdjecie
+            Matrix matrix = new Matrix();
+            matrix.postRotate(CameraPreview.mDisplayOrientation);
+
+            //tworzenie bitmapy na podstawie obrazu, uzywajac matrix do obrocenia
+            pictureTaken = Bitmap.createBitmap(pictureTaken,0,0,pictureTaken.getWidth(),
+                                                pictureTaken.getHeight(),matrix,true);
+            Uri contentUri = Uri.fromFile(pictureFile);
+            OutputStream outputStream;
+
+            try {
+                outputStream = getContentResolver().openOutputStream(contentUri);
+                boolean compressed = pictureTaken.compress(Bitmap.CompressFormat.JPEG,90,outputStream);
+                Log.e("Camera Magic","Obraz skompresowany i zapisany w: " + pictureFile + compressed);
+                outputStream.close();
+            } catch (FileNotFoundException e){
+                e.printStackTrace();
+            } catch (IOException e){
+                e.printStackTrace();
+            }
+
             if (pictureFile == null){
                 displayModal("Błąd przy tworzeniu pliku","Błąd zapisu zdjęcia, sprawdź uprawnienia dostępu do pamięci");
                 return;
             }
 
+            //wyslij zadanie przeskanowania pamieci
+            Intent mediaScanIntent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
+            mediaScanIntent.setData(contentUri);
+            getApplicationContext().sendBroadcast(mediaScanIntent);
+            Log.i("Camera Magic","Zdjecie zrobione " + pictureFile.getPath());
+
+            mCamera.startPreview();
+/*
             try {
                 FileOutputStream fos = new FileOutputStream(pictureFile);
                 fos.write(data);
@@ -52,7 +91,7 @@ public class MainActivity extends AppCompatActivity {
                 displayModal("Nie znaleziono pliku",e.getMessage());
             } catch (IOException e) {
                 displayModal("Błąd dsotępu do pliku",e.getMessage());
-            }
+            }*/
         }
     };
 
@@ -61,13 +100,18 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        scanner = new MediaScannerConnection(getApplicationContext(),this);
+
         //jeśli nie ma pozwolenia na kamerę
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA)
                 != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA},PERMISSIONS_REQUEST_CAMERA); //poproś o pozwolenie
         }
         else{ //jeśli zgoda już była udzielona
-            initCamera();
+            openBackCamera();
+            mPreview = new CameraPreview(this,mCamera);
+            FrameLayout preview = (FrameLayout) findViewById(R.id.camera_preview);
+            preview.addView(mPreview);
         }
         Button captureButton = (Button) findViewById(R.id.captureButton);
         captureButton.setOnClickListener(
@@ -81,11 +125,41 @@ public class MainActivity extends AppCompatActivity {
                         }
                         else {
                             mCamera.takePicture(null, null, mPicture);
+                            Log.e("Camera Magic","Wcisnieto przycisk migawki");
                         }
 
                     }
                 }
         );
+    }
+    private boolean safeCameraOpen(int id){
+        boolean qOpened = false;
+
+        try {
+            releaseCameraAndPreview();
+            mCamera = Camera.open(id);
+            CameraPreview.setCameraDisplayOrientation((Activity) this, id, mCamera);
+            mPreview.setCameraID(id);
+            qOpened = mCamera != null);
+        } catch (Exception e){
+            Log.e("Camera Magic","nie udało się otworzyć kamery");
+            e.printStackTrace();
+        }
+        return qOpened;
+    }
+    private void releaseCameraAndPreview() {
+        mPreview.setCamera(null);
+        if (mCamera != null) {
+            mCamera.release();
+            mCamera = null;
+        }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        openBackCamera();
+        mPreview.setCamera(mCamera);
     }
 
     public void initCamera(){
@@ -169,7 +243,7 @@ public class MainActivity extends AppCompatActivity {
         // using Environment.getExternalStorageState() before doing this.
 
         File mediaStorageDir = new File(Environment.getExternalStoragePublicDirectory(
-                Environment.DIRECTORY_PICTURES), "MyCameraApp");
+                Environment.DIRECTORY_PICTURES), "Camera Magic");
         // This location works best if you want the created images to be shared
         // between applications and persist after your app has been uninstalled.
 
@@ -185,8 +259,13 @@ public class MainActivity extends AppCompatActivity {
         String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
         File mediaFile;
         if (type == MEDIA_TYPE_IMAGE){
-            mediaFile = new File(mediaStorageDir.getPath() + File.separator +
-                    "IMG_"+ timeStamp + ".jpg");
+            String filename = "IMG_"+timeStamp;
+            try{
+                mediaFile = File.createTempFile(filename,".jpg",mediaStorageDir);
+            } catch (IOException e){
+                mediaFile=null;
+                Log.d("CameraMagic","nie udało się otworzyć pliku tymczasowego");
+            }
         } else {
             return null;
         }

@@ -79,18 +79,13 @@ public class MainActivity extends AppCompatActivity {
                                 != PackageManager.PERMISSION_GRANTED){
                             ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},PERMISSIONS_REQ_WRITESTORAGE);
                         }
-                        else mCamera.takePicture(null, null, mPicture);
+                        else {
+                            mCamera.takePicture(null, null, mPicture);
+                        }
+
                     }
                 }
         );
-    }
-    @Override
-    protected void onPause(){
-        super.onPause();/*
-        if (mCamera!=null) {
-            mCamera.release();
-            mCamera = null;
-        }*/
     }
 
     public void initCamera(){

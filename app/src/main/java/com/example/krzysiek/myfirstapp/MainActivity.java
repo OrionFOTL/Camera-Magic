@@ -35,7 +35,7 @@ import java.util.Date;
 
 import static android.provider.MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements MediaScannerConnection.MediaScannerConnectionClient {
     public static final String EXTRA_MESSAGE = "com.example.myfirstapp.MESSAGE";
     public static final int PERMISSIONS_REQUEST_CAMERA = 1;
     public static final int PERMISSIONS_REQ_WRITESTORAGE = 5;
@@ -162,6 +162,40 @@ public class MainActivity extends AppCompatActivity {
         mPreview.setCamera(mCamera);
     }
 
+    private void openBackCamera() {
+        Camera.CameraInfo cameraInfo = new Camera.CameraInfo();
+        int liczbaAparatow = Camera.getNumberOfCameras();
+
+        for (int id=0; id>liczbaAparatow; id++){
+            Camera.getCameraInfo(id,cameraInfo);
+            if (cameraInfo.facing == Camera.CameraInfo.CAMERA_FACING_BACK)
+                safeCameraOpen(id);
+        }
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        if (mCamera != null) {
+            mPreview.setCamera(null);
+            mCamera.release();
+            mCamera = null;
+        }
+    }
+
+    @Override
+    public void onMediaScannerConnected() {
+        File mediaStorageDir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES),"Camera Magic");
+        scanner.scanFile(mediaStorageDir.getAbsolutePath(),null);
+        Log.i("Scanner","Zeskanowana sciezka " + mediaStorageDir.getAbsolutePath());
+    }
+
+    @Override
+    public void onScanCompleted(String path, Uri uri){
+        scanner.disconnect();
+    }
+
+    //////////////////////Stare
     public void initCamera(){
         checkCameraHardware(this); //sprawdz czy jest kamera
 
@@ -199,13 +233,16 @@ public class MainActivity extends AppCompatActivity {
     public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults){
         if (requestCode == PERMISSIONS_REQUEST_CAMERA) {
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                initCamera();
+                openBackCamera();
+                mPreview = new CameraPreview(this,mCamera);
+                FrameLayout preview = (FrameLayout) findViewById(R.id.camera_preview);
+                preview.addView(mPreview);
                 return;
             } else displayErrorModal("Błąd uprawnień", "Nie pozwoliłeś na dostęp do kamery");
-        }
-        if (requestCode == PERMISSIONS_REQ_WRITESTORAGE) {
+        } else if (requestCode == PERMISSIONS_REQ_WRITESTORAGE) {
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 mCamera.takePicture(null, null, mPicture);
+                Log.e("Camera Magic","Wcisnieto przycisk migawki");
                 return;
             }
             else displayErrorModal("Błąd uprawnień", "Nie pozwoliłeś na dostęp do pamięci");

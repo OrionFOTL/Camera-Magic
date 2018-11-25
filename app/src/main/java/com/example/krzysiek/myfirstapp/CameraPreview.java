@@ -41,6 +41,7 @@ public class CameraPreview extends SurfaceView implements SurfaceHolder.Callback
         mHolder = getHolder();
         mHolder.addCallback(this);
         mContext = context;
+        activity = (Activity) context;
     }
     public CameraPreview(Context context, AttributeSet attr) {
         super(context, attr);

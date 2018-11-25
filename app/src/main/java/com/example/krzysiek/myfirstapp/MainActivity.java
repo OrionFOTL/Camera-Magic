@@ -42,6 +42,7 @@ public class MainActivity extends AppCompatActivity implements MediaScannerConne
     private MediaScannerConnection scanner;
     private Camera mCamera;
     private CameraPreview mPreview;
+    private int mCameraId = 0;
     private Camera.PictureCallback mPicture = new Camera.PictureCallback() {
         @Override
         public void onPictureTaken(byte[] data, Camera camera) {
@@ -110,6 +111,7 @@ public class MainActivity extends AppCompatActivity implements MediaScannerConne
         else{ //jeśli zgoda już była udzielona
             openBackCamera();
             mPreview = new CameraPreview(this,mCamera);
+            mPreview.setCameraID(mCameraId);
             FrameLayout preview = (FrameLayout) findViewById(R.id.camera_preview);
             preview.addView(mPreview);
         }
@@ -138,8 +140,7 @@ public class MainActivity extends AppCompatActivity implements MediaScannerConne
         try {
             releaseCameraAndPreview();
             mCamera = Camera.open(id);
-            CameraPreview.setCameraDisplayOrientation((Activity) this, id, mCamera);
-            mPreview.setCameraID(id);
+            //CameraPreview.setCameraDisplayOrientation((Activity) this, id, mCamera);
             qOpened = (mCamera != null);
         } catch (Exception e){
             Log.e("Camera Magic","nie udało się otworzyć kamery");
@@ -168,8 +169,10 @@ public class MainActivity extends AppCompatActivity implements MediaScannerConne
 
         for (int id=0; id<liczbaAparatow; id++){
             Camera.getCameraInfo(id,cameraInfo);
-            if (cameraInfo.facing == Camera.CameraInfo.CAMERA_FACING_BACK)
+            if (cameraInfo.facing == Camera.CameraInfo.CAMERA_FACING_BACK) {
+                mCameraId = id;
                 safeCameraOpen(id);
+            }
         }
     }
 

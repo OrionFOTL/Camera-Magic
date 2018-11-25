@@ -140,7 +140,7 @@ public class MainActivity extends AppCompatActivity implements MediaScannerConne
             mCamera = Camera.open(id);
             CameraPreview.setCameraDisplayOrientation((Activity) this, id, mCamera);
             mPreview.setCameraID(id);
-            qOpened = mCamera != null);
+            qOpened = (mCamera != null);
         } catch (Exception e){
             Log.e("Camera Magic","nie udało się otworzyć kamery");
             e.printStackTrace();
@@ -148,7 +148,7 @@ public class MainActivity extends AppCompatActivity implements MediaScannerConne
         return qOpened;
     }
     private void releaseCameraAndPreview() {
-        mPreview.setCamera(null);
+        if (mPreview != null) mPreview.setCamera(null);
         if (mCamera != null) {
             mCamera.release();
             mCamera = null;
@@ -166,7 +166,7 @@ public class MainActivity extends AppCompatActivity implements MediaScannerConne
         Camera.CameraInfo cameraInfo = new Camera.CameraInfo();
         int liczbaAparatow = Camera.getNumberOfCameras();
 
-        for (int id=0; id>liczbaAparatow; id++){
+        for (int id=0; id<liczbaAparatow; id++){
             Camera.getCameraInfo(id,cameraInfo);
             if (cameraInfo.facing == Camera.CameraInfo.CAMERA_FACING_BACK)
                 safeCameraOpen(id);

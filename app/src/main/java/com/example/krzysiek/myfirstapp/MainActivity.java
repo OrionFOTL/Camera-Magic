@@ -249,6 +249,7 @@ public class MainActivity extends AppCompatActivity implements MediaScannerConne
                     @Override
                     public void run() {
                         mCamera.takePicture(null, null, mPicture);
+                        mPreview.setCameraDisplayOrientation(MainActivity.this, mCameraId,mCamera);
                         Log.e("Camera Magic","Wcisnieto przycisk migawki");
                     }
                 }, 500);

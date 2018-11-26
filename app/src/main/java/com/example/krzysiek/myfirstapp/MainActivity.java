@@ -14,6 +14,7 @@ import android.icu.util.Output;
 import android.media.MediaScannerConnection;
 import android.net.Uri;
 import android.os.Environment;
+import android.os.Handler;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
@@ -160,7 +161,7 @@ public class MainActivity extends AppCompatActivity implements MediaScannerConne
     protected void onResume() {
         super.onResume();
         openBackCamera();
-        mPreview.setCamera(mCamera);
+        if (mPreview != null) mPreview.setCamera(mCamera);
     }
 
     private void openBackCamera() {
@@ -244,8 +245,13 @@ public class MainActivity extends AppCompatActivity implements MediaScannerConne
             } else displayErrorModal("Błąd uprawnień", "Nie pozwoliłeś na dostęp do kamery");
         } else if (requestCode == PERMISSIONS_REQ_WRITESTORAGE) {
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                mCamera.takePicture(null, null, mPicture);
-                Log.e("Camera Magic","Wcisnieto przycisk migawki");
+                new Handler().postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        mCamera.takePicture(null, null, mPicture);
+                        Log.e("Camera Magic","Wcisnieto przycisk migawki");
+                    }
+                }, 500);
                 return;
             }
             else displayErrorModal("Błąd uprawnień", "Nie pozwoliłeś na dostęp do pamięci");

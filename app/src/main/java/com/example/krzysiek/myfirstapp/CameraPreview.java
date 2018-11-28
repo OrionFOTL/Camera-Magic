@@ -12,6 +12,7 @@ import android.view.SurfaceView;
 import android.view.View;
 
 import java.io.IOException;
+import java.util.List;
 
 import static android.content.ContentValues.TAG;
 
@@ -59,9 +60,6 @@ public class CameraPreview extends SurfaceView implements SurfaceHolder.Callback
         try {
             if (mCamera != null) {
                 mCamera.setPreviewDisplay(holder);
-                Camera.Parameters parameters = mCamera.getParameters();
-                parameters.setPreviewSize(getWidth(), getHeight());
-                parameters.setSceneMode(Camera.Parameters.SCENE_MODE_PORTRAIT);
 
                 Activity myActivity = (Activity)getContext();
             }
@@ -96,6 +94,34 @@ public class CameraPreview extends SurfaceView implements SurfaceHolder.Callback
 
         // set preview size and make any resize, rotate or
         // reformatting changes here
+
+        //znajodwanie i ustawienie rozmiaru podglądu
+        Camera.Parameters parameters = mCamera.getParameters();
+        Camera.Size bestSize = null;
+
+        List<Camera.Size> sizeList = mCamera.getParameters().getSupportedPreviewSizes();
+        bestSize = sizeList.get(0);
+        for(int i = 1; i < sizeList.size(); i++){
+            if((sizeList.get(i).width * sizeList.get(i).height) >
+                    (bestSize.width * bestSize.height)){
+                bestSize = sizeList.get(i);
+            }
+        }
+        parameters.setPreviewSize(bestSize.width, bestSize.height);
+
+        //znalezienie i ustawienie rozmiaru zdjecia
+        List<Camera.Size> supportedSizes = parameters.getSupportedPictureSizes();
+        bestSize = supportedSizes.get(0);
+        for(int i = 1; i < supportedSizes.size(); i++){
+            if((supportedSizes.get(i).width * supportedSizes.get(i).height) >
+                    (bestSize.width * bestSize.height)){
+                bestSize = sizeList.get(i);
+            }
+        }
+        parameters.setPictureSize(bestSize.width, bestSize.height);
+
+        parameters.setSceneMode(Camera.Parameters.SCENE_MODE_PORTRAIT);
+        mCamera.setParameters(parameters);
 
         setCameraDisplayOrientation(activity,mCameraId,mCamera); //TODO CAMERAID
 

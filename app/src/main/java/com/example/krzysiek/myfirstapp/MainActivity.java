@@ -64,7 +64,7 @@ public class MainActivity extends AppCompatActivity implements MediaScannerConne
             try {
                 outputStream = getContentResolver().openOutputStream(contentUri);
                 boolean compressed = pictureTaken.compress(Bitmap.CompressFormat.JPEG,90,outputStream);
-                Log.e("Camera Magic","Obraz skompresowany i zapisany w: " + pictureFile + compressed);
+                displayModal("Camera Magic","Obraz skompresowany i zapisany w: " + pictureFile + compressed);
                 outputStream.close();
             } catch (FileNotFoundException e){
                 e.printStackTrace();

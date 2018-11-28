@@ -64,7 +64,7 @@ public class MainActivity extends AppCompatActivity implements MediaScannerConne
             try {
                 outputStream = getContentResolver().openOutputStream(contentUri);
                 boolean compressed = pictureTaken.compress(Bitmap.CompressFormat.JPEG,90,outputStream);
-                displayModal("Camera Magic","Obraz skompresowany i zapisany w: " + pictureFile + compressed);
+                Log.i("Camera Magic","Obraz skompresowany i zapisany w: " + pictureFile + compressed);
                 outputStream.close();
             } catch (FileNotFoundException e){
                 e.printStackTrace();
@@ -116,7 +116,7 @@ public class MainActivity extends AppCompatActivity implements MediaScannerConne
             FrameLayout preview = (FrameLayout) findViewById(R.id.camera_preview);
             preview.addView(mPreview);
         }
-        Button captureButton = (Button) findViewById(R.id.captureButton);
+        final Button captureButton = (Button) findViewById(R.id.captureButton);
         captureButton.setOnClickListener(
                 new View.OnClickListener() {
                     @Override
@@ -127,7 +127,13 @@ public class MainActivity extends AppCompatActivity implements MediaScannerConne
                             ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},PERMISSIONS_REQ_WRITESTORAGE);
                         }
                         else {
-                            mCamera.takePicture(null, null, mPicture);
+                            mCamera.autoFocus(new Camera.AutoFocusCallback() {
+                                @Override
+                                public void onAutoFocus(boolean success, Camera camera) {
+                                    mCamera.takePicture(null, null, mPicture);
+                                }
+                            });
+                            //mCamera.takePicture(null, null, mPicture);
                             Log.e("Camera Magic","Wcisnieto przycisk migawki");
                         }
 
@@ -248,7 +254,13 @@ public class MainActivity extends AppCompatActivity implements MediaScannerConne
                 new Handler().postDelayed(new Runnable() {
                     @Override
                     public void run() {
-                        mCamera.takePicture(null, null, mPicture);
+                        mCamera.autoFocus(new Camera.AutoFocusCallback() {
+                            @Override
+                            public void onAutoFocus(boolean success, Camera camera) {
+                                mCamera.takePicture(null, null, mPicture);
+                            }
+                        });
+                        //mCamera.takePicture(null, null, mPicture);
                         mPreview.setCameraDisplayOrientation(MainActivity.this, mCameraId,mCamera);
                         Log.e("Camera Magic","Wcisnieto przycisk migawki");
                     }

@@ -119,7 +119,7 @@ public class CameraPreview extends SurfaceView implements SurfaceHolder.Callback
             }
         }
         parameters.setPictureSize(bestSize.width, bestSize.height);
-
+        parameters.setFocusMode(Camera.Parameters.FOCUS_MODE_AUTO);
         parameters.setSceneMode(Camera.Parameters.SCENE_MODE_PORTRAIT);
         mCamera.setParameters(parameters);
 

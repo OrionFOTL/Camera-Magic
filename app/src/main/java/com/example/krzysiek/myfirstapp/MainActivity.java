@@ -83,8 +83,15 @@ public class MainActivity extends AppCompatActivity implements MediaScannerConne
             getApplicationContext().sendBroadcast(mediaScanIntent);
             Log.i("Camera Magic","Zdjecie zrobione " + pictureFile.getPath());
 
-            mCamera.startPreview();
-/*
+
+            Intent intent = new Intent(MainActivity.this, ImageEditActivity.class);
+            intent.putExtra("image","hi");
+            intent.putExtra("pictureUri",contentUri.toString());
+            startActivity(intent);
+
+            //mCamera.startPreview();
+
+            /*
             try {
                 FileOutputStream fos = new FileOutputStream(pictureFile);
                 fos.write(data);

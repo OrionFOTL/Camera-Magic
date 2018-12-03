@@ -85,7 +85,6 @@ public class MainActivity extends AppCompatActivity implements MediaScannerConne
 
 
             Intent intent = new Intent(MainActivity.this, ImageEditActivity.class);
-            intent.putExtra("image","hi");
             intent.putExtra("pictureUri",contentUri.toString());
             startActivity(intent);
 

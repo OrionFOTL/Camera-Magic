@@ -9,9 +9,11 @@ import android.support.annotation.ColorInt;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.PopupMenu;
 import android.widget.TextView;
 
 import java.io.File;
@@ -27,7 +29,7 @@ public class ImageEditActivity extends AppCompatActivity implements View.OnClick
         setContentView(R.layout.activity_image_edit);
 
 
-        Button buttonGray = (Button) findViewById(R.id.buttonGray);
+        Button buttonGray = (Button) findViewById(R.id.buttonColorFX);
         buttonGray.setOnClickListener(this); // calling onClick() method
         //Button two = (Button) findViewById(R.id.twoButton);
         //two.setOnClickListener(this);
@@ -36,7 +38,6 @@ public class ImageEditActivity extends AppCompatActivity implements View.OnClick
 
 
         // Get the Intent that started this activity and extract the string
-        Intent intent = getIntent();
         Uri pictureUri = Uri.parse(getIntent().getStringExtra("pictureUri"));
 
         imageView = findViewById(R.id.imageView);
@@ -48,9 +49,24 @@ public class ImageEditActivity extends AppCompatActivity implements View.OnClick
 
         switch (v.getId()) {
 
-            case R.id.buttonGray:
-                imageView.setImageTintMode(PorterDuff.Mode.OVERLAY);
-                imageView.setImageTintList(ColorStateList.valueOf(0xFFFF0000));
+            case R.id.buttonColorFX:
+                PopupMenu popup = new PopupMenu(this,v);
+                popup.getMenuInflater().inflate(R.menu.colorfx_menu, popup.getMenu());
+
+                popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+                    public boolean onMenuItemClick(MenuItem item) {
+                        switch (item.getItemId()) {
+                            case R.id.menu_colorfxRed:
+                                imageView.setImageTintMode(PorterDuff.Mode.OVERLAY);
+                                imageView.setImageTintList(ColorStateList.valueOf(0xFFFF0000));
+                                break;
+                            default:
+                                break;
+                        }
+                        return true;
+                    }
+                });
+                popup.show();//showing popup menu
                 break;
 
             default:

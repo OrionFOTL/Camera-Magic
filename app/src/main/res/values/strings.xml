@@ -8,4 +8,6 @@
     <string name="title_home">Home</string>
     <string name="title_dashboard">Dashboard</string>
     <string name="title_notifications">Notifications</string>
+    <string name="buttonColorFXText">Colors</string>
+    <string name="menu_colorfxRedText">Bloodbath</string>
 </resources>

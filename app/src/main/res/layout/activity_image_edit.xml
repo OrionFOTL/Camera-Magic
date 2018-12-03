@@ -31,11 +31,11 @@
             android:orientation="horizontal">
 
             <Button
-                android:id="@+id/buttonGray"
+                android:id="@+id/buttonColorFX"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="Gray" />
+                android:text="@string/buttonColorFXText" />
 
             <Button
                 android:id="@+id/button2"

@@ -4,8 +4,8 @@
         android:id="@+id/menu_colorfxRed"
         android:title="@string/menu_colorfxRedText" />
     <item
-        android:id="@+id/two"
-        android:title="Two"/>
+        android:id="@+id/menu_colorfxIceCold"
+        android:title="@string/menu_colorfxIceColdText" />
     <item
         android:id="@+id/three"
         android:title="Three"/>

@@ -48,6 +48,7 @@ public class ImageEditActivity extends AppCompatActivity implements View.OnClick
         Uri pictureUri = Uri.parse(getIntent().getStringExtra("pictureUri"));
 
         imageView = findViewById(R.id.imageView);
+        imageView.setScaleType(ImageView.ScaleType.FIT_START);
         try {
             Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), pictureUri);
             Bitmap mutableBitmap = bitmap.copy(Bitmap.Config.ARGB_8888, true);

@@ -7,6 +7,6 @@
         android:id="@+id/menu_colorfxIceCold"
         android:title="@string/menu_colorfxIceColdText" />
     <item
-        android:id="@+id/three"
-        android:title="Three"/>
+        android:id="@+id/menu_colorfxGreenery"
+        android:title="@string/menu_colorfxGreeneryText" />
 </menu>

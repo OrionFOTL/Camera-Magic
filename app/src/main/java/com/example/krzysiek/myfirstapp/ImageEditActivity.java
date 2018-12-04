@@ -64,6 +64,10 @@ public class ImageEditActivity extends AppCompatActivity implements View.OnClick
                                 imageView.setImageTintMode(PorterDuff.Mode.OVERLAY);
                                 imageView.setImageTintList(ColorStateList.valueOf(0xFF0000FF));
                                 break;
+                            case R.id.menu_colorfxGreenery:
+                                imageView.setImageTintMode(PorterDuff.Mode.OVERLAY);
+                                imageView.setImageTintList(ColorStateList.valueOf(0xFF00FF00));
+                                break;
                             default:
                                 break;
                         }

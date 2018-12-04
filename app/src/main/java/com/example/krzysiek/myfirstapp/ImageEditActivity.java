@@ -28,7 +28,10 @@ import java.io.IOException;
 public class ImageEditActivity extends AppCompatActivity implements View.OnClickListener {
 
 
-    ImageView imageView;
+    public ImageView imageView;
+    public Bitmap finalBitmap;
+    public Canvas canvas;
+    public Paint paint;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,12 +54,15 @@ public class ImageEditActivity extends AppCompatActivity implements View.OnClick
         imageView.setScaleType(ImageView.ScaleType.FIT_START);
         try {
             Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), pictureUri);
-            Bitmap mutableBitmap = bitmap.copy(Bitmap.Config.ARGB_8888, true);
-            Canvas canvas = new Canvas(mutableBitmap);
-            Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
-            paint.setColor(Color.BLACK);
-            canvas.drawCircle(50, 50, 10, paint);
-            imageView.setImageBitmap(mutableBitmap);
+            finalBitmap = bitmap.copy(Bitmap.Config.ARGB_8888, true);
+            finalBitmap = resize(finalBitmap,1200,2000);
+            canvas = new Canvas(finalBitmap);
+            paint = new Paint(Paint.ANTI_ALIAS_FLAG);
+            paint.setColor(Color.MAGENTA);
+            for (int i = 0; i < 30; i++) {
+                canvas.drawCircle(50+i*20, 50+i*40, 30, paint);
+            }
+            imageView.setImageBitmap(finalBitmap);
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         } catch (IOException e) {
@@ -88,6 +94,10 @@ public class ImageEditActivity extends AppCompatActivity implements View.OnClick
                                 imageView.setImageTintMode(PorterDuff.Mode.OVERLAY);
                                 imageView.setImageTintList(ColorStateList.valueOf(0xFF00FF00));
                                 break;
+                            case R.id.menu_colorfxInvert:
+                                finalBitmap = doInvert(finalBitmap);
+                                imageView.setImageBitmap(finalBitmap);
+                                break;
                             default:
                                 break;
                         }
@@ -101,5 +111,56 @@ public class ImageEditActivity extends AppCompatActivity implements View.OnClick
                 break;
         }
 
+    }
+    public static Bitmap doInvert(Bitmap src) {
+        // create new bitmap with the same settings as source bitmap
+        Bitmap bmOut = Bitmap.createBitmap(src.getWidth(), src.getHeight(), src.getConfig());
+        // color info
+        int A, R, G, B;
+        int pixelColor;
+        // image size
+        int height = src.getHeight();
+        int width = src.getWidth();
+
+        // scan through every pixel
+        for (int y = 0; y < height; y++)
+        {
+            for (int x = 0; x < width; x++)
+            {
+                // get one pixel
+                pixelColor = src.getPixel(x, y);
+                // saving alpha channel
+                A = Color.alpha(pixelColor);
+                // inverting byte for each R/G/B channel
+                R = 255 - Color.red(pixelColor);
+                G = 255 - Color.green(pixelColor);
+                B = 255 - Color.blue(pixelColor);
+                // set newly-inverted pixel to output image
+                bmOut.setPixel(x, y, Color.argb(A, R, G, B));
+            }
+        }
+        src.recycle();
+        // return final bitmap
+        return bmOut;
+    }
+    private static Bitmap resize(Bitmap image, int maxWidth, int maxHeight) {
+        if (maxHeight > 0 && maxWidth > 0) {
+            int width = image.getWidth();
+            int height = image.getHeight();
+            float ratioBitmap = (float) width / (float) height;
+            float ratioMax = (float) maxWidth / (float) maxHeight;
+
+            int finalWidth = maxWidth;
+            int finalHeight = maxHeight;
+            if (ratioMax > ratioBitmap) {
+                finalWidth = (int) ((float)maxHeight * ratioBitmap);
+            } else {
+                finalHeight = (int) ((float)maxWidth / ratioBitmap);
+            }
+            image = Bitmap.createScaledBitmap(image, finalWidth, finalHeight, true);
+            return image;
+        } else {
+            return image;
+        }
     }
 }

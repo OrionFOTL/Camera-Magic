@@ -12,4 +12,5 @@
     <string name="menu_colorfxRedText">Bloodbath</string>
     <string name="menu_colorfxIceColdText">Ice Cold</string>
     <string name="menu_colorfxGreeneryText">Greenery</string>
+    <string name="menu_colorfxInvertText">Invert</string>
 </resources>

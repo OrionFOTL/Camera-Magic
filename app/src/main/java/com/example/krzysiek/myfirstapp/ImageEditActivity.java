@@ -112,6 +112,26 @@ public class ImageEditActivity extends AppCompatActivity implements View.OnClick
         }
 
     }
+    private static Bitmap resize(Bitmap image, int maxWidth, int maxHeight) {
+        if (maxHeight > 0 && maxWidth > 0) {
+            int width = image.getWidth();
+            int height = image.getHeight();
+            float ratioBitmap = (float) width / (float) height;
+            float ratioMax = (float) maxWidth / (float) maxHeight;
+
+            int finalWidth = maxWidth;
+            int finalHeight = maxHeight;
+            if (ratioMax > ratioBitmap) {
+                finalWidth = (int) ((float)maxHeight * ratioBitmap);
+            } else {
+                finalHeight = (int) ((float)maxWidth / ratioBitmap);
+            }
+            image = Bitmap.createScaledBitmap(image, finalWidth, finalHeight, true);
+            return image;
+        } else {
+            return image;
+        }
+    }
     public static Bitmap doInvert(Bitmap src) {
         // create new bitmap with the same settings as source bitmap
         Bitmap bmOut = Bitmap.createBitmap(src.getWidth(), src.getHeight(), src.getConfig());
@@ -143,24 +163,27 @@ public class ImageEditActivity extends AppCompatActivity implements View.OnClick
         // return final bitmap
         return bmOut;
     }
-    private static Bitmap resize(Bitmap image, int maxWidth, int maxHeight) {
-        if (maxHeight > 0 && maxWidth > 0) {
-            int width = image.getWidth();
-            int height = image.getHeight();
-            float ratioBitmap = (float) width / (float) height;
-            float ratioMax = (float) maxWidth / (float) maxHeight;
 
-            int finalWidth = maxWidth;
-            int finalHeight = maxHeight;
-            if (ratioMax > ratioBitmap) {
-                finalWidth = (int) ((float)maxHeight * ratioBitmap);
-            } else {
-                finalHeight = (int) ((float)maxWidth / ratioBitmap);
+    private static Bitmap flipHalf(Bitmap image){
+        int height = image.getHeight();
+        int width = image.getWidth();
+        int pixelColor;
+        for(int y = 0; y < height; y++) {
+            for(int x = 0; x < width / 2; x++) { // divide by 2 to only loop through the left half of the image.
+
+                pixelColor = image.getPixel(x,y);
+                int r = Color.red(pixelColor);
+                int g = Color.green(pixelColor);
+                int b = Color.blue(pixelColor);
+                int a = Color.alpha(pixelColor);
+
+                // Calculate how far to the right the mirrored pixel is
+                int mirrorOffset = (width - (x * 2)) - 1;
+
+                // Get set mirrored pixel's colours
+                image.setPixel(x + mirrorOffset,y,Color.argb(a,r,g,b));
             }
-            image = Bitmap.createScaledBitmap(image, finalWidth, finalHeight, true);
-            return image;
-        } else {
-            return image;
         }
-    }
+        return image;
+    } //TODO przycisk do tego
 }

@@ -3,8 +3,13 @@ package com.example.krzysiek.myfirstapp;
 import android.content.Intent;
 import android.content.res.ColorStateList;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
 import android.graphics.PorterDuff;
 import android.net.Uri;
+import android.provider.MediaStore;
 import android.support.annotation.ColorInt;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -17,6 +22,8 @@ import android.widget.PopupMenu;
 import android.widget.TextView;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 
 public class ImageEditActivity extends AppCompatActivity implements View.OnClickListener {
 
@@ -41,7 +48,19 @@ public class ImageEditActivity extends AppCompatActivity implements View.OnClick
         Uri pictureUri = Uri.parse(getIntent().getStringExtra("pictureUri"));
 
         imageView = findViewById(R.id.imageView);
-        imageView.setImageURI(pictureUri);
+        try {
+            Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), pictureUri);
+            Bitmap mutableBitmap = bitmap.copy(Bitmap.Config.ARGB_8888, true);
+            Canvas canvas = new Canvas(mutableBitmap);
+            Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
+            paint.setColor(Color.BLACK);
+            canvas.drawCircle(50, 50, 10, paint);
+            imageView.setImageBitmap(mutableBitmap);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override

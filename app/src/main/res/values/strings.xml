@@ -16,4 +16,6 @@
     <string name="buttonFlipText">Flip</string>
     <string name="menu_flipLeftToRightText">Left to right</string>
     <string name="menu_flipRightToLeftText">Right to left</string>
+    <string name="menu_colorfxDescrText">Apply color effect:</string>
+    <string name="menu_flipDescrText">Mirror half:</string>
 </resources>

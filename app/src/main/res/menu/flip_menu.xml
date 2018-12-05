@@ -3,6 +3,10 @@
     xmlns:android="http://schemas.android.com/apk/res/android">
 
     <item
+        android:id="@+id/menu_flipDescr"
+        android:enabled="false"
+        android:title="@string/menu_flipDescrText" />
+    <item
         android:id="@+id/menu_flipLeftToRight"
         android:title="@string/menu_flipLeftToRightText" />
     <item

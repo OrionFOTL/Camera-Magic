@@ -17,6 +17,7 @@ import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.PopupMenu;
 import android.widget.TextView;
@@ -39,9 +40,9 @@ public class ImageEditActivity extends AppCompatActivity implements View.OnClick
         setContentView(R.layout.activity_image_edit);
 
 
-        Button buttonColorFX = (Button) findViewById(R.id.buttonColorFX);
+        ImageButton buttonColorFX = findViewById(R.id.buttonColorFX);
         buttonColorFX.setOnClickListener(this); // calling onClick() method
-        Button buttonFlip = (Button) findViewById(R.id.buttonFlip);
+        ImageButton buttonFlip = findViewById(R.id.buttonFlip);
         buttonFlip.setOnClickListener(this);
         //Button three = (Button) findViewById(R.id.threeButton);
         //three.setOnClickListener(this);

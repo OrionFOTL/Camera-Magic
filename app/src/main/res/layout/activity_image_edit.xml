@@ -23,38 +23,49 @@
     <LinearLayout
         android:id="@+id/buttonHolder"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="50dp"
         android:layout_alignParentBottom="true"
         android:gravity="bottom"
         android:orientation="horizontal">
 
-        <Button
+        <ImageButton
             android:id="@+id/buttonColorFX"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="30dp"
+            android:layout_height="match_parent"
             android:layout_weight="1"
-            android:text="@string/buttonColorFXText" />
+            android:adjustViewBounds="false"
+            android:baselineAlignBottom="false"
+            android:cropToPadding="false"
+            android:scaleType="fitCenter"
+            android:src="@drawable/ic_colorwheel" />
 
-        <Button
+        <ImageButton
             android:id="@+id/buttonFlip"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="30dp"
+            android:layout_height="match_parent"
             android:layout_weight="1"
-            android:text="@string/buttonFlipText" />
+            android:adjustViewBounds="false"
+            android:cropToPadding="false"
+            android:scaleType="fitCenter"
+            android:src="@drawable/ic_mirror" />
 
-        <Button
-            android:id="@+id/button4"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+        <ImageButton
+            android:id="@+id/buttonReset"
+            android:layout_width="30dp"
+            android:layout_height="match_parent"
             android:layout_weight="1"
-            android:text="Button" />
+            android:adjustViewBounds="false"
+            android:cropToPadding="false"
+            android:scaleType="fitCenter"
+            android:src="@drawable/reset" />
 
-        <Button
-            android:id="@+id/button5"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+        <ImageButton
+            android:id="@+id/buttonSave"
+            android:layout_width="30dp"
+            android:layout_height="match_parent"
             android:layout_weight="1"
-            android:text="Button" />
+            android:scaleType="fitCenter"
+            android:src="@drawable/ic_tick" />
     </LinearLayout>
 
 </RelativeLayout>

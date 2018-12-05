@@ -36,11 +36,11 @@
             android:text="@string/buttonColorFXText" />
 
         <Button
-            android:id="@+id/button2"
+            android:id="@+id/buttonFlip"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="Button" />
+            android:text="@string/buttonFlipText" />
 
         <Button
             android:id="@+id/button4"

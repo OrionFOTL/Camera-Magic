@@ -39,10 +39,10 @@ public class ImageEditActivity extends AppCompatActivity implements View.OnClick
         setContentView(R.layout.activity_image_edit);
 
 
-        Button buttonGray = (Button) findViewById(R.id.buttonColorFX);
-        buttonGray.setOnClickListener(this); // calling onClick() method
-        //Button two = (Button) findViewById(R.id.twoButton);
-        //two.setOnClickListener(this);
+        Button buttonColorFX = (Button) findViewById(R.id.buttonColorFX);
+        buttonColorFX.setOnClickListener(this); // calling onClick() method
+        Button buttonFlip = (Button) findViewById(R.id.buttonFlip);
+        buttonFlip.setOnClickListener(this);
         //Button three = (Button) findViewById(R.id.threeButton);
         //three.setOnClickListener(this);
 
@@ -104,7 +104,31 @@ public class ImageEditActivity extends AppCompatActivity implements View.OnClick
                         return true;
                     }
                 });
-                popup.show();//showing popup menu
+                popup.show();
+                break;
+
+            case R.id.buttonFlip:
+                PopupMenu popupFlip = new PopupMenu(this,v);
+                popupFlip.getMenuInflater().inflate(R.menu.flip_menu, popupFlip.getMenu());
+
+                popupFlip.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+                    public boolean onMenuItemClick(MenuItem item) {
+                        switch (item.getItemId()) {
+                            case R.id.menu_flipLeftToRight:
+                                finalBitmap = flipHalf(finalBitmap,true);
+                                imageView.setImageBitmap(finalBitmap);
+                                break;
+                            case R.id.menu_flipRightToLeft:
+                                finalBitmap = flipHalf(finalBitmap,false);
+                                imageView.setImageBitmap(finalBitmap);
+                                break;
+                            default:
+                                break;
+                        }
+                        return true;
+                    }
+                });
+                popupFlip.show();
                 break;
 
             default:
@@ -164,26 +188,26 @@ public class ImageEditActivity extends AppCompatActivity implements View.OnClick
         return bmOut;
     }
 
-    private static Bitmap flipHalf(Bitmap image){
+    private static Bitmap flipHalf(Bitmap image, boolean ltr){
         int height = image.getHeight();
         int width = image.getWidth();
-        int pixelColor;
-        for(int y = 0; y < height; y++) {
-            for(int x = 0; x < width / 2; x++) { // divide by 2 to only loop through the left half of the image.
-
-                pixelColor = image.getPixel(x,y);
-                int r = Color.red(pixelColor);
-                int g = Color.green(pixelColor);
-                int b = Color.blue(pixelColor);
-                int a = Color.alpha(pixelColor);
-
-                // Calculate how far to the right the mirrored pixel is
-                int mirrorOffset = (width - (x * 2)) - 1;
-
-                // Get set mirrored pixel's colours
-                image.setPixel(x + mirrorOffset,y,Color.argb(a,r,g,b));
+        if (ltr) {
+            for (int y = 0; y < height; y++) {
+                for (int x = 0; x < width / 2; x++) {
+                    // Calculate how far to the right the mirrored pixel is
+                    int mirrorOffset = (width - (x * 2)) - 1;
+                    image.setPixel(x + mirrorOffset, y, image.getPixel(x, y));
+                }
+            }
+        } else {
+            for (int y = 0; y < height; y++) {
+                for (int x = width/2; x < width; x++) { // divide by 2 to only loop through the left half of the image.
+                    // Calculate how far to the right the mirrored pixel is
+                    int mirrorOffset = width - x - 1;
+                    image.setPixel(mirrorOffset, y, image.getPixel(x, y));
+                }
             }
         }
         return image;
-    } //TODO przycisk do tego
+    }
 }

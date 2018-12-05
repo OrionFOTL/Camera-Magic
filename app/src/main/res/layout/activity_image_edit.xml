@@ -30,7 +30,7 @@
 
         <ImageButton
             android:id="@+id/buttonColorFX"
-            android:layout_width="30dp"
+            android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:adjustViewBounds="false"
@@ -41,7 +41,7 @@
 
         <ImageButton
             android:id="@+id/buttonFlip"
-            android:layout_width="30dp"
+            android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:adjustViewBounds="false"
@@ -51,7 +51,7 @@
 
         <ImageButton
             android:id="@+id/buttonReset"
-            android:layout_width="30dp"
+            android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:adjustViewBounds="false"
@@ -61,7 +61,7 @@
 
         <ImageButton
             android:id="@+id/buttonSave"
-            android:layout_width="30dp"
+            android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:scaleType="fitCenter"

@@ -9,6 +9,7 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.PorterDuff;
 import android.net.Uri;
+import android.provider.ContactsContract;
 import android.provider.MediaStore;
 import android.support.annotation.ColorInt;
 import android.support.v7.app.AppCompatActivity;
@@ -21,14 +22,17 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.PopupMenu;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.OutputStream;
 
 public class ImageEditActivity extends AppCompatActivity implements View.OnClickListener {
 
 
+    public Uri pictureUri;
     public ImageView imageView;
     public Bitmap finalBitmap;
     public Canvas canvas;
@@ -44,12 +48,14 @@ public class ImageEditActivity extends AppCompatActivity implements View.OnClick
         buttonColorFX.setOnClickListener(this); // calling onClick() method
         ImageButton buttonFlip = findViewById(R.id.buttonFlip);
         buttonFlip.setOnClickListener(this);
-        //Button three = (Button) findViewById(R.id.threeButton);
-        //three.setOnClickListener(this);
+        ImageButton buttonReset = findViewById(R.id.buttonReset);
+        buttonReset.setOnClickListener(this);
+        ImageButton buttonSave = findViewById(R.id.buttonSave);
+        buttonSave.setOnClickListener(this);
 
 
         // Get the Intent that started this activity and extract the string
-        Uri pictureUri = Uri.parse(getIntent().getStringExtra("pictureUri"));
+        pictureUri = Uri.parse(getIntent().getStringExtra("pictureUri"));
 
         imageView = findViewById(R.id.imageView);
         imageView.setScaleType(ImageView.ScaleType.FIT_START);
@@ -130,6 +136,22 @@ public class ImageEditActivity extends AppCompatActivity implements View.OnClick
                     }
                 });
                 popupFlip.show();
+                break;
+
+            case R.id.buttonSave:
+                OutputStream outputStream;
+
+                try {
+                    outputStream = getContentResolver().openOutputStream(pictureUri);
+                    boolean compressed = finalBitmap.compress(Bitmap.CompressFormat.JPEG,90,outputStream);
+                    Log.i("Camera Magic","Obraz skompresowany i zapisany w: " + pictureUri + compressed);
+                    Toast.makeText(this, "Saved!", Toast.LENGTH_SHORT).show();
+                    outputStream.close();
+                } catch (FileNotFoundException e){
+                    e.printStackTrace();
+                } catch (IOException e){
+                    e.printStackTrace();
+                }
                 break;
 
             default:

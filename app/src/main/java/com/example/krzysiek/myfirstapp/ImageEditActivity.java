@@ -138,6 +138,20 @@ public class ImageEditActivity extends AppCompatActivity implements View.OnClick
                 popupFlip.show();
                 break;
 
+            case R.id.buttonReset:
+                try {
+                    Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), pictureUri);
+                    finalBitmap = bitmap.copy(Bitmap.Config.ARGB_8888, true);
+                    finalBitmap = resize(finalBitmap,1200,2000);
+                    canvas = new Canvas(finalBitmap);
+                    imageView.setImageBitmap(finalBitmap);
+                } catch (FileNotFoundException e) {
+                    e.printStackTrace();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                break;
+
             case R.id.buttonSave:
                 OutputStream outputStream;
 

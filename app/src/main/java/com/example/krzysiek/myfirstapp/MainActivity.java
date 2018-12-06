@@ -146,6 +146,30 @@ public class MainActivity extends AppCompatActivity implements MediaScannerConne
                     }
                 }
         );
+        final Button flipCameraButton = (Button) findViewById(R.id.flipCameraButton);
+        flipCameraButton.setOnClickListener(
+                new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        Camera.CameraInfo cameraInfo = new Camera.CameraInfo();
+                        Camera.getCameraInfo(mCameraId,cameraInfo);
+                        if (cameraInfo.facing == Camera.CameraInfo.CAMERA_FACING_BACK) {
+                            openFrontCamera();
+                            mPreview = new CameraPreview(MainActivity.this,mCamera);
+                            mPreview.setCameraID(mCameraId);
+                            FrameLayout preview = (FrameLayout) findViewById(R.id.camera_preview);
+                            preview.addView(mPreview);
+                        }
+                        else {
+                            openBackCamera();
+                            mPreview = new CameraPreview(MainActivity.this,mCamera);
+                            mPreview.setCameraID(mCameraId);
+                            FrameLayout preview = (FrameLayout) findViewById(R.id.camera_preview);
+                            preview.addView(mPreview);
+                        }
+                    }
+                }
+        );
     }
     private boolean safeCameraOpen(int id){
         boolean qOpened = false;
@@ -183,6 +207,19 @@ public class MainActivity extends AppCompatActivity implements MediaScannerConne
         for (int id=0; id<liczbaAparatow; id++){
             Camera.getCameraInfo(id,cameraInfo);
             if (cameraInfo.facing == Camera.CameraInfo.CAMERA_FACING_BACK) {
+                mCameraId = id;
+                safeCameraOpen(id);
+            }
+        }
+    }
+
+    private void openFrontCamera() {
+        Camera.CameraInfo cameraInfo = new Camera.CameraInfo();
+        int liczbaAparatow = Camera.getNumberOfCameras();
+
+        for (int id=0; id<liczbaAparatow; id++){
+            Camera.getCameraInfo(id,cameraInfo);
+            if (cameraInfo.facing == Camera.CameraInfo.CAMERA_FACING_FRONT) {
                 mCameraId = id;
                 safeCameraOpen(id);
             }

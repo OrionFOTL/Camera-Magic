@@ -161,6 +161,7 @@ public class ImageEditActivity extends AppCompatActivity implements View.OnClick
                     Log.i("Camera Magic","Obraz skompresowany i zapisany w: " + pictureUri + compressed);
                     Toast.makeText(this, "Saved!", Toast.LENGTH_SHORT).show();
                     outputStream.close();
+                    finish();
                 } catch (FileNotFoundException e){
                     e.printStackTrace();
                 } catch (IOException e){

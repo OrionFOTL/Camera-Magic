@@ -116,7 +116,7 @@ public class MainActivity extends AppCompatActivity implements MediaScannerConne
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA},PERMISSIONS_REQUEST_CAMERA); //poproś o pozwolenie
         }
         else{ //jeśli zgoda już była udzielona
-            openBackCamera();
+            openFrontCamera();
             mPreview = new CameraPreview(this,mCamera);
             mPreview.setCameraID(mCameraId);
             FrameLayout preview = (FrameLayout) findViewById(R.id.camera_preview);
@@ -133,13 +133,15 @@ public class MainActivity extends AppCompatActivity implements MediaScannerConne
                             ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},PERMISSIONS_REQ_WRITESTORAGE);
                         }
                         else {
-                            mCamera.autoFocus(new Camera.AutoFocusCallback() {
-                                @Override
-                                public void onAutoFocus(boolean success, Camera camera) {
-                                    mCamera.takePicture(null, null, mPicture);
-                                }
-                            });
-                            //mCamera.takePicture(null, null, mPicture);
+                            if (mCamera.getParameters().getFocusMode().equals(Camera.Parameters.FOCUS_MODE_AUTO)
+                                    || mCamera.getParameters().getFocusMode().equals(Camera.Parameters.FOCUS_MODE_MACRO)) {
+                                mCamera.autoFocus(new Camera.AutoFocusCallback() {
+                                    @Override
+                                    public void onAutoFocus(boolean success, Camera camera) {
+                                        mCamera.takePicture(null, null, mPicture);
+                                    }
+                                });
+                            } else mCamera.takePicture(null, null, mPicture);
                             Log.e("Camera Magic","Wcisnieto przycisk migawki");
                         }
 
@@ -158,6 +160,7 @@ public class MainActivity extends AppCompatActivity implements MediaScannerConne
                             mPreview = new CameraPreview(MainActivity.this,mCamera);
                             mPreview.setCameraID(mCameraId);
                             FrameLayout preview = (FrameLayout) findViewById(R.id.camera_preview);
+                            preview.removeAllViews();
                             preview.addView(mPreview);
                         }
                         else {
@@ -165,6 +168,7 @@ public class MainActivity extends AppCompatActivity implements MediaScannerConne
                             mPreview = new CameraPreview(MainActivity.this,mCamera);
                             mPreview.setCameraID(mCameraId);
                             FrameLayout preview = (FrameLayout) findViewById(R.id.camera_preview);
+                            preview.removeAllViews();
                             preview.addView(mPreview);
                         }
                     }
@@ -196,7 +200,8 @@ public class MainActivity extends AppCompatActivity implements MediaScannerConne
     @Override
     protected void onResume() {
         super.onResume();
-        openBackCamera();
+        if (mCameraId == 0) openBackCamera();
+        else openFrontCamera();
         if (mPreview != null) mPreview.setCamera(mCamera);
     }
 
@@ -297,14 +302,15 @@ public class MainActivity extends AppCompatActivity implements MediaScannerConne
                 new Handler().postDelayed(new Runnable() {
                     @Override
                     public void run() {
-                        mCamera.autoFocus(new Camera.AutoFocusCallback() {
-                            @Override
-                            public void onAutoFocus(boolean success, Camera camera) {
-                                mCamera.takePicture(null, null, mPicture);
-                            }
-                        });
-                        //mCamera.takePicture(null, null, mPicture);
-                        mPreview.setCameraDisplayOrientation(MainActivity.this, mCameraId,mCamera);
+                        if (mCamera.getParameters().getFocusMode() == Camera.Parameters.FOCUS_MODE_AUTO
+                                || mCamera.getParameters().getFocusMode() == Camera.Parameters.FOCUS_MODE_MACRO) {
+                            mCamera.autoFocus(new Camera.AutoFocusCallback() {
+                                @Override
+                                public void onAutoFocus(boolean success, Camera camera) {
+                                    mCamera.takePicture(null, null, mPicture);
+                                }
+                            });
+                        } else mCamera.takePicture(null, null, mPicture);
                         Log.e("Camera Magic","Wcisnieto przycisk migawki");
                     }
                 }, 500);

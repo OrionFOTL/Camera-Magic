@@ -6,6 +6,9 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.ColorFilter;
+import android.graphics.LightingColorFilter;
+import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.PorterDuff;
 import android.net.Uri;
@@ -90,16 +93,13 @@ public class ImageEditActivity extends AppCompatActivity implements View.OnClick
                     public boolean onMenuItemClick(MenuItem item) {
                         switch (item.getItemId()) {
                             case R.id.menu_colorfxRed:
-                                imageView.setImageTintMode(PorterDuff.Mode.OVERLAY);
-                                imageView.setImageTintList(ColorStateList.valueOf(0xFFFF0000));
+                                colorFilter(0xFFFF0000);
                                 break;
                             case R.id.menu_colorfxIceCold:
-                                imageView.setImageTintMode(PorterDuff.Mode.OVERLAY);
-                                imageView.setImageTintList(ColorStateList.valueOf(0xFF0000FF));
+                                colorFilter(0xFF0000FF);
                                 break;
                             case R.id.menu_colorfxGreenery:
-                                imageView.setImageTintMode(PorterDuff.Mode.OVERLAY);
-                                imageView.setImageTintList(ColorStateList.valueOf(0xFF00FF00));
+                                colorFilter(0xFF00FF00);
                                 break;
                             case R.id.menu_colorfxInvert:
                                 finalBitmap = doInvert(finalBitmap);
@@ -225,7 +225,6 @@ public class ImageEditActivity extends AppCompatActivity implements View.OnClick
         // return final bitmap
         return bmOut;
     }
-
     private static Bitmap flipHalf(Bitmap image, boolean ltr){
         int height = image.getHeight();
         int width = image.getWidth();
@@ -247,5 +246,11 @@ public class ImageEditActivity extends AppCompatActivity implements View.OnClick
             }
         }
         return image;
+    }
+    private void colorFilter(@ColorInt int color){
+        paint = new Paint(Color.RED);
+        ColorFilter colorFilter = new LightingColorFilter(color,0x0);
+        paint.setColorFilter(colorFilter);
+        canvas.drawBitmap(finalBitmap,new Matrix(),paint);
     }
 }

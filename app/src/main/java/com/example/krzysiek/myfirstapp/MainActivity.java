@@ -33,6 +33,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 
 import static android.provider.MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE;
 
@@ -133,8 +134,7 @@ public class MainActivity extends AppCompatActivity implements MediaScannerConne
                             ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},PERMISSIONS_REQ_WRITESTORAGE);
                         }
                         else {
-                            if (mCamera.getParameters().getFocusMode().equals(Camera.Parameters.FOCUS_MODE_AUTO)
-                                    || mCamera.getParameters().getFocusMode().equals(Camera.Parameters.FOCUS_MODE_MACRO)) {
+                            if (mCamera.getParameters().getSupportedFocusModes().contains(Camera.Parameters.FOCUS_MODE_AUTO)) {
                                 mCamera.autoFocus(new Camera.AutoFocusCallback() {
                                     @Override
                                     public void onAutoFocus(boolean success, Camera camera) {
@@ -302,8 +302,7 @@ public class MainActivity extends AppCompatActivity implements MediaScannerConne
                 new Handler().postDelayed(new Runnable() {
                     @Override
                     public void run() {
-                        if (mCamera.getParameters().getFocusMode() == Camera.Parameters.FOCUS_MODE_AUTO
-                                || mCamera.getParameters().getFocusMode() == Camera.Parameters.FOCUS_MODE_MACRO) {
+                        if (mCamera.getParameters().getSupportedFocusModes().contains(Camera.Parameters.FOCUS_MODE_AUTO)) {
                             mCamera.autoFocus(new Camera.AutoFocusCallback() {
                                 @Override
                                 public void onAutoFocus(boolean success, Camera camera) {

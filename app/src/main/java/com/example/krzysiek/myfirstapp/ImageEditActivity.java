@@ -2,6 +2,7 @@ package com.example.krzysiek.myfirstapp;
 
 import android.content.Intent;
 import android.content.res.ColorStateList;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
@@ -11,6 +12,7 @@ import android.graphics.LightingColorFilter;
 import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.PorterDuff;
+import android.graphics.Rect;
 import android.net.Uri;
 import android.provider.ContactsContract;
 import android.provider.MediaStore;
@@ -48,9 +50,11 @@ public class ImageEditActivity extends AppCompatActivity implements View.OnClick
 
 
         ImageButton buttonColorFX = findViewById(R.id.buttonColorFX);
-        buttonColorFX.setOnClickListener(this); // calling onClick() method
+        buttonColorFX.setOnClickListener(this);
         ImageButton buttonFlip = findViewById(R.id.buttonFlip);
         buttonFlip.setOnClickListener(this);
+        ImageButton buttonNaruto = findViewById(R.id.buttonNaruto);
+        buttonNaruto.setOnClickListener(this);
         ImageButton buttonReset = findViewById(R.id.buttonReset);
         buttonReset.setOnClickListener(this);
         ImageButton buttonSave = findViewById(R.id.buttonSave);
@@ -69,8 +73,8 @@ public class ImageEditActivity extends AppCompatActivity implements View.OnClick
             canvas = new Canvas(finalBitmap);
             paint = new Paint(Paint.ANTI_ALIAS_FLAG);
             paint.setColor(Color.MAGENTA);
-            for (int i = 0; i < 30; i++) {
-                canvas.drawCircle(50+i*20, 50+i*40, 30, paint);
+            for (int i = 0; i <= 12; i++) {
+                canvas.drawCircle(100*i, 100*i, 20, paint);
             }
             imageView.setImageBitmap(finalBitmap);
         } catch (FileNotFoundException e) {
@@ -136,6 +140,31 @@ public class ImageEditActivity extends AppCompatActivity implements View.OnClick
                     }
                 });
                 popupFlip.show();
+                break;
+
+            case R.id.buttonNaruto:
+                Bitmap heart = decodeSampledBitmapFromResource(getResources(),R.drawable.heart,400,400);
+                Bitmap heart2 = decodeSampledBitmapFromResource(getResources(),R.drawable.heart2,300,300);
+                for (int i=0; i<3; i++){
+                    Matrix matrix = new Matrix();
+                    matrix.postRotate((float) Math.random()*360);
+                    Bitmap bmp = Bitmap.createBitmap(heart2, 0, 0, heart2.getWidth(), heart2.getHeight(), matrix, true);
+                    int positionX = (int)(Math.random() * canvas.getWidth())-100;
+                    int positionY = (int)(Math.random() * canvas.getHeight())-100;
+                    canvas.drawBitmap(bmp, new Rect(0,0,bmp.getWidth(),bmp.getHeight()),
+                                              new Rect(positionX,positionY,positionX+200,positionY+200),null);
+                    bmp.recycle();
+                }
+                for (int i=0; i<2; i++){
+                    Matrix matrix = new Matrix();
+                    matrix.postRotate((float) Math.random()*360);
+                    Bitmap bmp = Bitmap.createBitmap(heart, 0, 0, heart.getWidth(), heart.getHeight(), matrix, true);
+                    int positionX = (int)(Math.random() * canvas.getWidth())-100;
+                    int positionY = (int)(Math.random() * canvas.getHeight())-100;
+                    canvas.drawBitmap(bmp, new Rect(0,0,bmp.getWidth(),bmp.getHeight()),
+                            new Rect(positionX,positionY,positionX+200,positionY+200),null);
+                }
+                imageView.setImageBitmap(finalBitmap);
                 break;
 
             case R.id.buttonReset:
@@ -252,5 +281,41 @@ public class ImageEditActivity extends AppCompatActivity implements View.OnClick
         ColorFilter colorFilter = new LightingColorFilter(color,0x0);
         paint.setColorFilter(colorFilter);
         canvas.drawBitmap(finalBitmap,new Matrix(),paint);
+    }
+    public static int calculateInSampleSize(BitmapFactory.Options options, int reqWidth, int reqHeight) {
+        // Raw height and width of image
+        final int height = options.outHeight;
+        final int width = options.outWidth;
+        int inSampleSize = 1;
+
+        if (height > reqHeight || width > reqWidth) {
+
+            final int halfHeight = height / 2;
+            final int halfWidth = width / 2;
+
+            // Calculate the largest inSampleSize value that is a power of 2 and keeps both
+            // height and width larger than the requested height and width.
+            while ((halfHeight / inSampleSize) >= reqHeight
+                    && (halfWidth / inSampleSize) >= reqWidth) {
+                inSampleSize *= 2;
+            }
+        }
+
+        return inSampleSize;
+    }
+    public static Bitmap decodeSampledBitmapFromResource(Resources res, int resId, int reqWidth, int reqHeight) {
+
+        // First decode with inJustDecodeBounds=true to check dimensions
+        final BitmapFactory.Options options = new BitmapFactory.Options();
+        options.inScaled = false;
+        options.inJustDecodeBounds = true;
+        BitmapFactory.decodeResource(res, resId, options);
+
+        // Calculate inSampleSize
+        options.inSampleSize = calculateInSampleSize(options, reqWidth, reqHeight);
+
+        // Decode bitmap with inSampleSize set
+        options.inJustDecodeBounds = false;
+        return BitmapFactory.decodeResource(res, resId, options);
     }
 }

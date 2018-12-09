@@ -50,6 +50,16 @@
             android:src="@drawable/ic_mirror" />
 
         <ImageButton
+            android:id="@+id/buttonNaruto"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:adjustViewBounds="false"
+            android:cropToPadding="false"
+            android:scaleType="fitCenter"
+            app:srcCompat="@drawable/naruto" />
+
+        <ImageButton
             android:id="@+id/buttonReset"
             android:layout_width="0dp"
             android:layout_height="match_parent"

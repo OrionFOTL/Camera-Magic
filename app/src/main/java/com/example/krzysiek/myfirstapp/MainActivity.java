@@ -54,7 +54,10 @@ public class MainActivity extends AppCompatActivity implements MediaScannerConne
 
             //obroc zdjecie
             Matrix matrix = new Matrix();
-            matrix.postRotate(CameraPreview.mDisplayOrientation);
+            Camera.CameraInfo cameraInfo = new Camera.CameraInfo();
+            Camera.getCameraInfo(mCameraId,cameraInfo);
+            if (cameraInfo.facing == Camera.CameraInfo.CAMERA_FACING_BACK) matrix.postRotate(CameraPreview.mDisplayOrientation);
+            else if (cameraInfo.facing == Camera.CameraInfo.CAMERA_FACING_FRONT) matrix.postRotate(-CameraPreview.mDisplayOrientation);
 
             //tworzenie bitmapy na podstawie obrazu, uzywajac matrix do obrocenia
             pictureTaken = Bitmap.createBitmap(pictureTaken,0,0,pictureTaken.getWidth(),

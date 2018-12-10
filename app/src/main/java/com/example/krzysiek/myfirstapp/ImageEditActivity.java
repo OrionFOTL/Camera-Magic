@@ -33,6 +33,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.concurrent.ThreadLocalRandom;
 
 public class ImageEditActivity extends AppCompatActivity implements View.OnClickListener {
 
@@ -143,14 +144,18 @@ public class ImageEditActivity extends AppCompatActivity implements View.OnClick
                 break;
 
             case R.id.buttonNaruto:
+                colorFilter(0x00f7a0c0);
+                int positionX, positionY;
                 Bitmap heart = decodeSampledBitmapFromResource(getResources(),R.drawable.heart,400,400);
                 Bitmap heart2 = decodeSampledBitmapFromResource(getResources(),R.drawable.heart2,300,300);
+                Bitmap cloud1 = decodeSampledBitmapFromResource(getResources(),R.drawable.cloud1,1200,800);
+                Bitmap cloud2 = decodeSampledBitmapFromResource(getResources(),R.drawable.cloud2,1200,800);
                 for (int i=0; i<3; i++){
                     Matrix matrix = new Matrix();
                     matrix.postRotate((float) Math.random()*360);
                     Bitmap bmp = Bitmap.createBitmap(heart2, 0, 0, heart2.getWidth(), heart2.getHeight(), matrix, true);
-                    int positionX = (int)(Math.random() * canvas.getWidth())-100;
-                    int positionY = (int)(Math.random() * canvas.getHeight())-100;
+                    positionX = ThreadLocalRandom.current().nextInt(0, canvas.getWidth() - 20);
+                    positionY = ThreadLocalRandom.current().nextInt(0, canvas.getHeight() - 300);
                     canvas.drawBitmap(bmp, new Rect(0,0,bmp.getWidth(),bmp.getHeight()),
                                               new Rect(positionX,positionY,positionX+200,positionY+200),null);
                     bmp.recycle();
@@ -159,11 +164,20 @@ public class ImageEditActivity extends AppCompatActivity implements View.OnClick
                     Matrix matrix = new Matrix();
                     matrix.postRotate((float) Math.random()*360);
                     Bitmap bmp = Bitmap.createBitmap(heart, 0, 0, heart.getWidth(), heart.getHeight(), matrix, true);
-                    int positionX = (int)(Math.random() * canvas.getWidth())-100;
-                    int positionY = (int)(Math.random() * canvas.getHeight())-100;
+                    positionX = ThreadLocalRandom.current().nextInt(0, canvas.getWidth() - 200);
+                    positionY = ThreadLocalRandom.current().nextInt(0, canvas.getHeight() - 300);
                     canvas.drawBitmap(bmp, new Rect(0,0,bmp.getWidth(),bmp.getHeight()),
                             new Rect(positionX,positionY,positionX+200,positionY+200),null);
+                    bmp.recycle();
                 }
+                positionX = ThreadLocalRandom.current().nextInt(0, canvas.getWidth()) - 400;
+                positionY = ThreadLocalRandom.current().nextInt(canvas.getHeight()/2, canvas.getHeight() - 200);
+                canvas.drawBitmap(cloud1, new Rect(0,0,cloud1.getWidth(),cloud1.getHeight()),
+                        new Rect(positionX,positionY,(int) (positionX+cloud1.getWidth()*0.5),(int)(positionY+cloud1.getHeight()*0.5)),null);
+                positionX = ThreadLocalRandom.current().nextInt(0, canvas.getWidth()) - 400;
+                positionY = ThreadLocalRandom.current().nextInt(canvas.getHeight()/2, canvas.getHeight() - 200);
+                canvas.drawBitmap(cloud2, new Rect(0,0,cloud2.getWidth(),cloud2.getHeight()),
+                        new Rect(positionX,positionY,(int) (positionX+cloud2.getWidth()*0.5),(int)(positionY+cloud2.getHeight()*0.5)),null);
                 imageView.setImageBitmap(finalBitmap);
                 break;
 
@@ -277,7 +291,7 @@ public class ImageEditActivity extends AppCompatActivity implements View.OnClick
         return image;
     }
     private void colorFilter(@ColorInt int color){
-        paint = new Paint(Color.RED);
+        paint = new Paint();
         ColorFilter colorFilter = new LightingColorFilter(color,0x0);
         paint.setColorFilter(colorFilter);
         canvas.drawBitmap(finalBitmap,new Matrix(),paint);

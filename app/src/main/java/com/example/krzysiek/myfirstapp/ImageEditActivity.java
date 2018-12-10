@@ -147,6 +147,7 @@ public class ImageEditActivity extends AppCompatActivity implements View.OnClick
                 Bitmap heart2 = decodeSampledBitmapFromResource(getResources(),R.drawable.heartm,400,400);
                 Bitmap cloud1 = decodeSampledBitmapFromResource(getResources(),R.drawable.cloud1,1200,800);
                 Bitmap cloud2 = decodeSampledBitmapFromResource(getResources(),R.drawable.cloud2,1200,800);
+                Bitmap menacing = decodeSampledBitmapFromResource(getResources(),R.drawable.menacing,400,400);
 
                 positionX = ThreadLocalRandom.current().nextInt(0, canvas.getWidth()) - 400;
                 positionY = ThreadLocalRandom.current().nextInt(canvas.getHeight()/2, canvas.getHeight() - 200);
@@ -172,11 +173,17 @@ public class ImageEditActivity extends AppCompatActivity implements View.OnClick
                     canvas.drawBitmap(bmp, new Rect(0,0,bmp.getWidth(),bmp.getHeight()),
                             new Rect(positionX,positionY,positionX+200,positionY+200),null);
                     bmp.recycle();
-                }
+                }//menacing
+                positionX = ThreadLocalRandom.current().nextInt(0, canvas.getWidth() - 20);
+                positionY = ThreadLocalRandom.current().nextInt(0, canvas.getHeight() - 20);
+                canvas.drawBitmap(menacing, new Rect(0,0,menacing.getWidth(),menacing.getHeight()),
+                        new Rect(positionX,positionY,positionX+400,positionY+400),null);
+
                 positionX = ThreadLocalRandom.current().nextInt(0, canvas.getWidth()) - 400;
                 positionY = ThreadLocalRandom.current().nextInt(canvas.getHeight()/2, canvas.getHeight() - 200);
                 canvas.drawBitmap(cloud2, new Rect(0,0,cloud2.getWidth(),cloud2.getHeight()),
                         new Rect(positionX,positionY,(int) (positionX+cloud2.getWidth()*0.5),(int)(positionY+cloud2.getHeight()*0.5)),null);
+
                 positionX = ThreadLocalRandom.current().nextInt(0, canvas.getWidth()) - 400;
                 positionY = ThreadLocalRandom.current().nextInt(canvas.getHeight()/2, canvas.getHeight() - 200);
                 canvas.drawBitmap(cloud2, new Rect(0,0,cloud2.getWidth(),cloud2.getHeight()),

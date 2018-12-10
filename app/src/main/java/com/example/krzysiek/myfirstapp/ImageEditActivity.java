@@ -72,11 +72,6 @@ public class ImageEditActivity extends AppCompatActivity implements View.OnClick
             finalBitmap = bitmap.copy(Bitmap.Config.ARGB_8888, true);
             finalBitmap = resize(finalBitmap,1200,2000);
             canvas = new Canvas(finalBitmap);
-            paint = new Paint(Paint.ANTI_ALIAS_FLAG);
-            paint.setColor(Color.MAGENTA);
-            for (int i = 0; i <= 12; i++) {
-                canvas.drawCircle(100*i, 100*i, 20, paint);
-            }
             imageView.setImageBitmap(finalBitmap);
         } catch (FileNotFoundException e) {
             e.printStackTrace();

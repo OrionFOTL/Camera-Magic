@@ -43,6 +43,7 @@ public class ImageEditActivity extends AppCompatActivity implements View.OnClick
     public Bitmap finalBitmap;
     public Canvas canvas;
     public Paint paint;
+    public boolean wasNarutoed = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -139,23 +140,30 @@ public class ImageEditActivity extends AppCompatActivity implements View.OnClick
                 break;
 
             case R.id.buttonNaruto:
-                colorFilter(0x00f7a0c0);
+                if (!wasNarutoed) colorFilter(0x00f7a0c0);
+                wasNarutoed = true;
                 int positionX, positionY;
                 Bitmap heart = decodeSampledBitmapFromResource(getResources(),R.drawable.heart,400,400);
-                Bitmap heart2 = decodeSampledBitmapFromResource(getResources(),R.drawable.heart2,300,300);
+                Bitmap heart2 = decodeSampledBitmapFromResource(getResources(),R.drawable.heartm,400,400);
                 Bitmap cloud1 = decodeSampledBitmapFromResource(getResources(),R.drawable.cloud1,1200,800);
                 Bitmap cloud2 = decodeSampledBitmapFromResource(getResources(),R.drawable.cloud2,1200,800);
-                for (int i=0; i<3; i++){
+
+                positionX = ThreadLocalRandom.current().nextInt(0, canvas.getWidth()) - 400;
+                positionY = ThreadLocalRandom.current().nextInt(canvas.getHeight()/2, canvas.getHeight() - 200);
+                canvas.drawBitmap(cloud1, new Rect(0,0,cloud1.getWidth(),cloud1.getHeight()),
+                        new Rect(positionX,positionY,(int) (positionX+cloud1.getWidth()*0.5),(int)(positionY+cloud1.getHeight()*0.5)),null);
+
+                for (int i=0; i<4; i++){
                     Matrix matrix = new Matrix();
                     matrix.postRotate((float) Math.random()*360);
                     Bitmap bmp = Bitmap.createBitmap(heart2, 0, 0, heart2.getWidth(), heart2.getHeight(), matrix, true);
                     positionX = ThreadLocalRandom.current().nextInt(0, canvas.getWidth() - 20);
                     positionY = ThreadLocalRandom.current().nextInt(0, canvas.getHeight() - 300);
                     canvas.drawBitmap(bmp, new Rect(0,0,bmp.getWidth(),bmp.getHeight()),
-                                              new Rect(positionX,positionY,positionX+200,positionY+200),null);
+                                              new Rect(positionX,positionY,positionX+400,positionY+400),null);
                     bmp.recycle();
                 }
-                for (int i=0; i<2; i++){
+                for (int i=0; i<1; i++){
                     Matrix matrix = new Matrix();
                     matrix.postRotate((float) Math.random()*360);
                     Bitmap bmp = Bitmap.createBitmap(heart, 0, 0, heart.getWidth(), heart.getHeight(), matrix, true);
@@ -167,8 +175,8 @@ public class ImageEditActivity extends AppCompatActivity implements View.OnClick
                 }
                 positionX = ThreadLocalRandom.current().nextInt(0, canvas.getWidth()) - 400;
                 positionY = ThreadLocalRandom.current().nextInt(canvas.getHeight()/2, canvas.getHeight() - 200);
-                canvas.drawBitmap(cloud1, new Rect(0,0,cloud1.getWidth(),cloud1.getHeight()),
-                        new Rect(positionX,positionY,(int) (positionX+cloud1.getWidth()*0.5),(int)(positionY+cloud1.getHeight()*0.5)),null);
+                canvas.drawBitmap(cloud2, new Rect(0,0,cloud2.getWidth(),cloud2.getHeight()),
+                        new Rect(positionX,positionY,(int) (positionX+cloud2.getWidth()*0.5),(int)(positionY+cloud2.getHeight()*0.5)),null);
                 positionX = ThreadLocalRandom.current().nextInt(0, canvas.getWidth()) - 400;
                 positionY = ThreadLocalRandom.current().nextInt(canvas.getHeight()/2, canvas.getHeight() - 200);
                 canvas.drawBitmap(cloud2, new Rect(0,0,cloud2.getWidth(),cloud2.getHeight()),
@@ -188,6 +196,7 @@ public class ImageEditActivity extends AppCompatActivity implements View.OnClick
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
+                wasNarutoed = false;
                 break;
 
             case R.id.buttonSave:

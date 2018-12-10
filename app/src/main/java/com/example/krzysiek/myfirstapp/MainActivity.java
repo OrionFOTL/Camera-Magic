@@ -302,6 +302,12 @@ public class MainActivity extends AppCompatActivity implements MediaScannerConne
             } else displayErrorModal("Błąd uprawnień", "Nie pozwoliłeś na dostęp do kamery");
         } else if (requestCode == PERMISSIONS_REQ_WRITESTORAGE) {
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                safeCameraOpen(mCameraId);
+                mPreview = new CameraPreview(MainActivity.this,mCamera);
+                mPreview.setCameraID(mCameraId);
+                FrameLayout preview = (FrameLayout) findViewById(R.id.camera_preview);
+                preview.removeAllViews();
+                preview.addView(mPreview);
                 new Handler().postDelayed(new Runnable() {
                     @Override
                     public void run() {

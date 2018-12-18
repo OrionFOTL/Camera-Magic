@@ -1,8 +1,6 @@
 package com.example.krzysiek.myfirstapp;
 
 import android.Manifest;
-import android.app.Activity;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -10,7 +8,6 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
 import android.hardware.Camera;
-import android.icu.util.Output;
 import android.media.MediaScannerConnection;
 import android.net.Uri;
 import android.os.Environment;
@@ -22,24 +19,18 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.widget.Button;
-import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
 
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.List;
 
 import static android.provider.MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE;
 
 public class MainActivity extends AppCompatActivity implements MediaScannerConnection.MediaScannerConnectionClient {
-    public static final String EXTRA_MESSAGE = "com.example.myfirstapp.MESSAGE";
     public static final int PERMISSIONS_REQUEST_CAMERA = 1;
     public static final int PERMISSIONS_REQ_WRITESTORAGE = 5;
     private MediaScannerConnection scanner;
@@ -71,8 +62,6 @@ public class MainActivity extends AppCompatActivity implements MediaScannerConne
                 boolean compressed = pictureTaken.compress(Bitmap.CompressFormat.JPEG,90,outputStream);
                 Log.i("Camera Magic","Obraz skompresowany i zapisany w: " + pictureFile + compressed);
                 outputStream.close();
-            } catch (FileNotFoundException e){
-                e.printStackTrace();
             } catch (IOException e){
                 e.printStackTrace();
             }
@@ -93,18 +82,6 @@ public class MainActivity extends AppCompatActivity implements MediaScannerConne
             intent.putExtra("pictureUri",contentUri.toString());
             startActivity(intent);
 
-            //mCamera.startPreview();
-
-            /*
-            try {
-                FileOutputStream fos = new FileOutputStream(pictureFile);
-                fos.write(data);
-                fos.close();
-            } catch (FileNotFoundException e) {
-                displayModal("Nie znaleziono pliku",e.getMessage());
-            } catch (IOException e) {
-                displayModal("Błąd dsotępu do pliku",e.getMessage());
-            }*/
         }
     };
 
@@ -126,10 +103,10 @@ public class MainActivity extends AppCompatActivity implements MediaScannerConne
             openFrontCamera();
             mPreview = new CameraPreview(this,mCamera);
             mPreview.setCameraID(mCameraId);
-            FrameLayout preview = (FrameLayout) findViewById(R.id.camera_preview);
+            FrameLayout preview = findViewById(R.id.camera_preview);
             preview.addView(mPreview);
         }
-        final ImageButton captureButton = (ImageButton) findViewById(R.id.captureButton);
+        final ImageButton captureButton = findViewById(R.id.captureButton);
         captureButton.setOnClickListener(
                 new View.OnClickListener() {
                     @Override
@@ -154,7 +131,7 @@ public class MainActivity extends AppCompatActivity implements MediaScannerConne
                     }
                 }
         );
-        final ImageButton flipCameraButton = (ImageButton) findViewById(R.id.flipCameraButton);
+        final ImageButton flipCameraButton = findViewById(R.id.flipCameraButton);
         flipCameraButton.setOnClickListener(
                 new View.OnClickListener() {
                     @Override
@@ -165,7 +142,7 @@ public class MainActivity extends AppCompatActivity implements MediaScannerConne
                             openFrontCamera();
                             mPreview = new CameraPreview(MainActivity.this,mCamera);
                             mPreview.setCameraID(mCameraId);
-                            FrameLayout preview = (FrameLayout) findViewById(R.id.camera_preview);
+                            FrameLayout preview = findViewById(R.id.camera_preview);
                             preview.removeAllViews();
                             preview.addView(mPreview);
                         }
@@ -173,7 +150,7 @@ public class MainActivity extends AppCompatActivity implements MediaScannerConne
                             openBackCamera();
                             mPreview = new CameraPreview(MainActivity.this,mCamera);
                             mPreview.setCameraID(mCameraId);
-                            FrameLayout preview = (FrameLayout) findViewById(R.id.camera_preview);
+                            FrameLayout preview = findViewById(R.id.camera_preview);
                             preview.removeAllViews();
                             preview.addView(mPreview);
                         }
@@ -259,56 +236,21 @@ public class MainActivity extends AppCompatActivity implements MediaScannerConne
         scanner.disconnect();
     }
 
-    //////////////////////Stare
-    public void initCamera(){
-        checkCameraHardware(this); //sprawdz czy jest kamera
-
-        //create an instance of Camera
-        mCamera = getCameraInstance();
-
-        //Create our Preview View and set it as content of our activity
-        mPreview = new CameraPreview(this,mCamera);
-        FrameLayout preview = (FrameLayout) findViewById(R.id.camera_preview);
-        preview.addView(mPreview);
-
-    }
-    public Camera getCameraInstance() {
-        Camera cam = null;
-        try {
-            cam = Camera.open();
-
-        }
-        catch (Exception e){
-            displayErrorModal("Błąd kamery",e.toString());
-        }
-        return cam;
-    }
-    private boolean checkCameraHardware(Context context) {
-        if (context.getPackageManager().hasSystemFeature(PackageManager.FEATURE_CAMERA)){
-            // this device has a camera
-            return true;
-        } else {
-            displayErrorModal("Brak kamery","Twój telefon nie ma aparatu");
-            return false;
-        }
-    } //true jeśli urządzenie ma kamerę
-
     @Override
     public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults){
         if (requestCode == PERMISSIONS_REQUEST_CAMERA) {
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 openBackCamera();
                 mPreview = new CameraPreview(this,mCamera);
-                FrameLayout preview = (FrameLayout) findViewById(R.id.camera_preview);
+                FrameLayout preview = findViewById(R.id.camera_preview);
                 preview.addView(mPreview);
-                return;
             } else displayErrorModal("Błąd uprawnień", "Nie pozwoliłeś na dostęp do kamery");
         } else if (requestCode == PERMISSIONS_REQ_WRITESTORAGE) {
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 safeCameraOpen(mCameraId);
                 mPreview = new CameraPreview(MainActivity.this,mCamera);
                 mPreview.setCameraID(mCameraId);
-                FrameLayout preview = (FrameLayout) findViewById(R.id.camera_preview);
+                FrameLayout preview = findViewById(R.id.camera_preview);
                 preview.removeAllViews();
                 preview.addView(mPreview);
                 new Handler().postDelayed(new Runnable() {
@@ -325,7 +267,6 @@ public class MainActivity extends AppCompatActivity implements MediaScannerConne
                         Log.e("Camera Magic","Wcisnieto przycisk migawki");
                     }
                 }, 500);
-                return;
             }
             else displayErrorModal("Błąd uprawnień", "Nie pozwoliłeś na dostęp do pamięci");
         }
@@ -358,18 +299,14 @@ public class MainActivity extends AppCompatActivity implements MediaScannerConne
 
     /** Create a File for saving an image or video */
     private static File getOutputMediaFile(int type){
-        // To be safe, you should check that the SDCard is mounted
-        // using Environment.getExternalStorageState() before doing this.
 
         File mediaStorageDir = new File(Environment.getExternalStoragePublicDirectory(
                 Environment.DIRECTORY_PICTURES), "Camera Magic");
-        // This location works best if you want the created images to be shared
-        // between applications and persist after your app has been uninstalled.
 
         // Create the storage directory if it does not exist
         if (! mediaStorageDir.exists()){
             if (! mediaStorageDir.mkdirs()){
-                Log.d("MyCameraApp", "failed to create directory");
+                Log.d("Camera Magic", "Nie udało się stworzyć folderu w galerii");
                 return null;
             }
         }
@@ -391,17 +328,5 @@ public class MainActivity extends AppCompatActivity implements MediaScannerConne
 
         return mediaFile;
     }
-
-
-    /* Called when the user taps the Send button */
-    /*
-    public void sendMessage(View view) {
-        Intent intent = new Intent(this, DisplayMessageActivity.class);
-        EditText editText = (EditText) findViewById(R.id.editText);
-        String message = editText.getText().toString();
-        intent.putExtra(EXTRA_MESSAGE, message);
-        startActivity(intent);
-    }
-     */
 }
 

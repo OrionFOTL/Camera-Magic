@@ -25,6 +25,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.FrameLayout;
+import android.widget.ImageButton;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -117,16 +118,18 @@ public class MainActivity extends AppCompatActivity implements MediaScannerConne
         //jeśli nie ma pozwolenia na kamerę
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA)
                 != PackageManager.PERMISSION_GRANTED) {
+            Log.i("Camera Magic","Asking for camera permissionns now");
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA},PERMISSIONS_REQUEST_CAMERA); //poproś o pozwolenie
         }
         else{ //jeśli zgoda już była udzielona
+            Log.i("Camera Magic","opening back camera now");
             openFrontCamera();
             mPreview = new CameraPreview(this,mCamera);
             mPreview.setCameraID(mCameraId);
             FrameLayout preview = (FrameLayout) findViewById(R.id.camera_preview);
             preview.addView(mPreview);
         }
-        final Button captureButton = (Button) findViewById(R.id.captureButton);
+        final ImageButton captureButton = (ImageButton) findViewById(R.id.captureButton);
         captureButton.setOnClickListener(
                 new View.OnClickListener() {
                     @Override
@@ -151,7 +154,7 @@ public class MainActivity extends AppCompatActivity implements MediaScannerConne
                     }
                 }
         );
-        final Button flipCameraButton = (Button) findViewById(R.id.flipCameraButton);
+        final ImageButton flipCameraButton = (ImageButton) findViewById(R.id.flipCameraButton);
         flipCameraButton.setOnClickListener(
                 new View.OnClickListener() {
                     @Override

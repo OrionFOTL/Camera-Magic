@@ -30,29 +30,27 @@
     <LinearLayout
         android:id="@+id/Linear_Buttons_Parent"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="50dp"
         android:gravity="bottom"
         android:orientation="horizontal"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent">
 
-        <Button
+        <ImageButton
             android:id="@+id/captureButton"
-            style="@style/Widget.AppCompat.Button.Borderless"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
             android:layout_weight="1"
-            android:text="@string/captureButtonText"
-            android:textSize="18sp" />
+            android:scaleType="fitCenter"
+            android:src="@drawable/photo_camera" />
 
-        <Button
+        <ImageButton
             android:id="@+id/flipCameraButton"
-            style="@style/Widget.AppCompat.Button.Borderless"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
             android:layout_weight="1"
-            android:text="@string/buttonReturnText"
-            android:textSize="18sp" />
+            android:scaleType="fitCenter"
+            android:src="@drawable/rotate_camera" />
 
     </LinearLayout>
 
